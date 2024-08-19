@@ -43,6 +43,17 @@ module.exports = {
    */
   chebyshev: function(dx, dy) {
       return Math.max(dx, dy);
+  },
+
+  /**
+  * Safest-route heuristic.
+  * @param {number} WL - Water level at node n.
+  * @param {number} T - Time at node n.
+  * @return {number} Math.abs(WL * T)
+  */
+  safestRoute: function(WL, T) {
+      return Math.abs(WL * T);
   }
 
 };
+//Added Safest-route Heuristic - subject to changes/temporary
