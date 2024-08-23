@@ -141,3 +141,9 @@ footer {
 .spinner {
     width: 2em;
 }
+
+#cell_option_panel {
+    bottom: 180px;
+    right: 20px;
+    width: 250px;
+}
