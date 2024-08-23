@@ -180,9 +180,6 @@ var View = {
             // XXX: Maybe draw a line from this node to its parent?
             // This would be expensive.
             break;
-        default:
-            console.error('unsupported operation: ' + attr + ':' + value);
-            return;
         }
     },
 

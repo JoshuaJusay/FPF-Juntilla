@@ -25,7 +25,6 @@ var Panel = {
         // Add event listener for cell color options
         $('input[name="ida_heuristic1"]').on('change', function() {
             Panel.selectedColor = $(this).val().toLowerCase();  // Ensure the value is lowercase
-            console.log("Selected color: " + Panel.selectedColor); // Debugging line
         });
     },
 

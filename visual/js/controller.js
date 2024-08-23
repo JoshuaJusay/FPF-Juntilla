@@ -396,8 +396,7 @@ $.extend(Controller, {
         if (this.isStartOrEndPos(gridX, gridY)) {
             return;
         }
-    
-        console.log("Mouse down with selected color: " + Panel.selectedColor); // Debugging line
+
     
         switch (Panel.selectedColor) {
             case 'black':
