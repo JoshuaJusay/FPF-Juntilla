@@ -119,18 +119,19 @@ $.extend(Controller, {
         return StateMachine.ASYNC;
         // => ready
     },
+
     ondrawWall: function(event, from, to, gridX, gridY) {
         this.setWalkableAt(gridX, gridY, false);
-        // => drawingWall
     },
+
     oneraseWall: function(event, from, to, gridX, gridY) {
         this.setWalkableAt(gridX, gridY, true);
-        // => erasingWall
     },
+
     ondrawWater: function(event, from, to, gridX, gridY) {
-        this.setWaterAt(gridX, gridY, false); // Set the water attribute to true
-        // => drawingWater
+        this.setWaterAt(gridX, gridY, Panel.selectedColor); // Use selectedColor to set water type
     },
+
     onsearch: function(event, from, to) {
         var grid,
             timeStart, timeEnd,
@@ -148,31 +149,30 @@ $.extend(Controller, {
         this.loop();
         // => searching
     },
+
     onrestart: function() {
-        // When clearing the colorized nodes, there may be
-        // nodes still animating, which is an asynchronous procedure.
-        // Therefore, we have to defer the `abort` routine to make sure
-        // that all the animations are done by the time we clear the colors.
-        // The same reason applies for the `onreset` event handler.
         setTimeout(function() {
             Controller.clearOperations();
             Controller.clearFootprints();
             Controller.start();
         }, View.nodeColorizeEffect.duration * 1.2);
-        // => restarting
     },
+
     onpause: function(event, from, to) {
         // => paused
     },
+
     onresume: function(event, from, to) {
         this.loop();
         // => searching
     },
+
     oncancel: function(event, from, to) {
         this.clearOperations();
         this.clearFootprints();
         // => ready
     },
+
     onfinish: function(event, from, to) {
         View.showStats({
             pathLength: PF.Util.pathLength(this.path),
@@ -182,14 +182,17 @@ $.extend(Controller, {
         View.drawPath(this.path);
         // => finished
     },
+
     onclear: function(event, from, to) {
         this.clearOperations();
         this.clearFootprints();
         // => ready
     },
+
     onmodify: function(event, from, to) {
         // => modified
     },
+
     onreset: function(event, from, to) {
         setTimeout(function() {
             Controller.clearOperations();
@@ -198,10 +201,6 @@ $.extend(Controller, {
         }, View.nodeColorizeEffect.duration * 1.2);
         // => ready
     },
-
-    /**
-     * The following functions are called on entering states.
-     */
 
     onready: function() {
         console.log('=> ready');
@@ -220,11 +219,10 @@ $.extend(Controller, {
             enabled: true,
             callback: $.proxy(this.reset, this),
         });
-        // => [starting, draggingStart, draggingEnd, drawingStart, drawingEnd]
     },
+
     onstarting: function(event, from, to) {
         console.log('=> starting');
-        // Clears any existing search progress
         this.clearFootprints();
         this.setButtonStates({
             id: 2,
@@ -233,6 +231,7 @@ $.extend(Controller, {
         this.search();
         // => searching
     },
+
     onsearching: function() {
         console.log('=> searching');
         this.setButtonStates({
@@ -246,8 +245,8 @@ $.extend(Controller, {
             enabled: true,
             callback: $.proxy(this.pause, this),
         });
-        // => [paused, finished]
     },
+
     onpaused: function() {
         console.log('=> paused');
         this.setButtonStates({
@@ -261,8 +260,8 @@ $.extend(Controller, {
             enabled: true,
             callback: $.proxy(this.cancel, this),
         });
-        // => [searching, ready]
     },
+
     onfinished: function() {
         console.log('=> finished');
         this.setButtonStates({
@@ -277,6 +276,7 @@ $.extend(Controller, {
             callback: $.proxy(this.clear, this),
         });
     },
+
     onmodified: function() {
         console.log('=> modified');
         this.setButtonStates({
@@ -292,12 +292,7 @@ $.extend(Controller, {
         });
     },
 
-    /**
-     * Define setters and getters of PF.Node, then we can get the operations
-     * of the pathfinding.
-     */
     hookPathFinding: function() {
-
         PF.Node.prototype = {
             get opened() {
                 return this._opened;
@@ -339,12 +334,14 @@ $.extend(Controller, {
 
         this.operations = [];
     },
+
     bindEvents: function() {
         $('#draw_area').mousedown($.proxy(this.mousedown, this));
         $(window)
             .mousemove($.proxy(this.mousemove, this))
             .mouseup($.proxy(this.mouseup, this));
     },
+
     loop: function() {
         var interval = 1000 / this.operationsPerSecond;
         (function loop() {
@@ -355,13 +352,14 @@ $.extend(Controller, {
             setTimeout(loop, interval);
         })();
     },
+
     step: function() {
         var operations = this.operations,
             op, isSupported;
 
         do {
             if (!operations.length) {
-                this.finish(); // transit to `finished` state
+                this.finish();
                 return;
             }
             op = operations.shift();
@@ -370,87 +368,98 @@ $.extend(Controller, {
 
         View.setAttributeAt(op.x, op.y, op.attr, op.value);
     },
+
     clearOperations: function() {
         this.operations = [];
     },
+
     clearFootprints: function() {
         View.clearFootprints();
         View.clearPath();
     },
+
     clearAll: function() {
         this.clearFootprints();
         View.clearBlockedNodes();
     },
+
     buildNewGrid: function() {
         this.grid = new PF.Grid(this.gridSize[0], this.gridSize[1]);
     },
+
     mousedown: function (event) {
         var coord = View.toGridCoordinate(event.pageX, event.pageY),
             gridX = coord[0],
             gridY = coord[1],
             grid  = this.grid;
     
-        // Check if Ctrl key is pressed
-        var ctrlPressed = event.ctrlKey || event.metaKey;
+        if (this.isStartOrEndPos(gridX, gridY)) {
+            return;
+        }
     
-        if (ctrlPressed) {
-            // Ctrl+click: Draw water
-            if (this.can('drawWater') && grid.isWalkableAt(gridX, gridY)) {
-                this.drawWater(gridX, gridY);
-            }
-        } else {
-            // Handle other mouse actions
-            if (this.can('dragStart') && this.isStartPos(gridX, gridY)) {
-                this.dragStart();
-            }
-            if (this.can('dragEnd') && this.isEndPos(gridX, gridY)) {
-                this.dragEnd();
-            }
-            if (this.can('drawWall') && grid.isWalkableAt(gridX, gridY)) {
-                this.drawWall(gridX, gridY);
-            }
-            if (this.can('eraseWall') && !grid.isWalkableAt(gridX, gridY)) {
-                this.eraseWall(gridX, gridY);
-            }
+        console.log("Mouse down with selected color: " + Panel.selectedColor); // Debugging line
+    
+        switch (Panel.selectedColor) {
+            case 'black':
+                if (this.can('drawWall') && grid.isWalkableAt(gridX, gridY)) {
+                    this.drawWall(gridX, gridY);
+                }
+                break;
+            case 'green':
+            case 'orange':
+            case 'red':
+                if (this.can('drawWater') && grid.isWalkableAt(gridX, gridY)) {
+                    this.drawWater(gridX, gridY);
+                }
+                break;
+            case 'white':
+                if (this.can('eraseWall') && !grid.isWalkableAt(gridX, gridY)) {
+                    this.eraseWall(gridX, gridY);
+                }
+                break;
         }
     },
+    
+
     mousemove: function(event) {
         var coord = View.toGridCoordinate(event.pageX, event.pageY),
-            grid = this.grid,
             gridX = coord[0],
-            gridY = coord[1];
+            gridY = coord[1],
+            grid = this.grid;
 
         if (this.isStartOrEndPos(gridX, gridY)) {
             return;
         }
 
         switch (this.current) {
-        case 'draggingStart':
-            if (grid.isWalkableAt(gridX, gridY)) {
-                this.setStartPos(gridX, gridY);
-            }
-            break;
-        case 'draggingEnd':
-            if (grid.isWalkableAt(gridX, gridY)) {
-                this.setEndPos(gridX, gridY);
-            }
-            break;
-        case 'drawingWall':
-            this.setWalkableAt(gridX, gridY, false);
-            break;
-        case 'erasingWall':
-            this.setWalkableAt(gridX, gridY, true);
-            break;
-        case 'drawingWater':
-            this.setWalkableAt(gridX, gridY, false);
-            break;
+            case 'draggingStart':
+                if (grid.isWalkableAt(gridX, gridY)) {
+                    this.setStartPos(gridX, gridY);
+                }
+                break;
+            case 'draggingEnd':
+                if (grid.isWalkableAt(gridX, gridY)) {
+                    this.setEndPos(gridX, gridY);
+                }
+                break;
+            case 'drawingWall':
+                this.setWalkableAt(gridX, gridY, false);
+                break;
+            case 'erasingWall':
+                this.setWalkableAt(gridX, gridY, true);
+                break;
+            case 'drawingWater':
+                this.setWaterAt(gridX, gridY, Panel.selectedColor);
+                break;
         }
     },
+
     mouseup: function(event) {
         if (Controller.can('rest')) {
             Controller.rest();
         }
     },
+
     setButtonStates: function() {
         $.each(arguments, function(i, opt) {
             var $button = Controller.$buttons.eq(opt.id - 1);
@@ -471,11 +480,7 @@ $.extend(Controller, {
             }
         });
     },
-    /**
-     * When initializing, this method will be called to set the positions
-     * of start node and end node.
-     * It will detect user's display size, and compute the best positions.
-     */
+
     setDefaultStartEndPos: function() {
         var width, height,
             marginRight, availWidth,
@@ -495,30 +500,37 @@ $.extend(Controller, {
         this.setStartPos(2, 48);
         this.setEndPos(48, 2);
     },
+
     setStartPos: function(gridX, gridY) {
         this.startX = gridX;
         this.startY = gridY;
         View.setStartPos(gridX, gridY);
     },
+
     setEndPos: function(gridX, gridY) {
         this.endX = gridX;
         this.endY = gridY;
         View.setEndPos(gridX, gridY);
     },
+
     setWalkableAt: function(gridX, gridY, walkable) {
         this.grid.setWalkableAt(gridX, gridY, walkable);
         View.setAttributeAt(gridX, gridY, 'walkable', walkable);
     },
-    setWaterAt: function(gridX, gridY, walkable) {
-        this.grid.setWalkableAt(gridX, gridY, walkable);
-        View.setAttributeAt(gridX, gridY, 'water', walkable);
+
+    setWaterAt: function(gridX, gridY, color) {
+        this.grid.setWalkableAt(gridX, gridY, false);  // Set walkable to false for water
+        View.setAttributeAt(gridX, gridY, 'water', color);
     },
+
     isStartPos: function(gridX, gridY) {
         return gridX === this.startX && gridY === this.startY;
     },
+
     isEndPos: function(gridX, gridY) {
         return gridX === this.endX && gridY === this.endY;
     },
+
     isStartOrEndPos: function(gridX, gridY) {
         return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY);
     },

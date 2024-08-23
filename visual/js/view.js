@@ -1,5 +1,5 @@
 var View = {
-    nodeSize: 14, // width and height of a single node, in pixel
+    nodeSize: 14, // width and height of a single node, in pixels
     nodeStyle: {
         normal: {
             fill: 'white',
@@ -9,8 +9,16 @@ var View = {
             fill: 'grey',
             'stroke-opacity': 0.2,
         },
-        water: {
-            fill: 'yellow',
+        waterLow: {  // New style for Low Water Level
+            fill: 'green',
+            'stroke-opacity': 0.2,
+        },
+        waterModerate: {  // New style for Moderate Water Level
+            fill: 'orange',
+            'stroke-opacity': 0.2,
+        },
+        waterHigh: {  // New style for High Water Level
+            fill: 'red',
             'stroke-opacity': 0.2,
         },
         start: {
@@ -51,21 +59,16 @@ var View = {
         'stroke-width': 3,
     },
     supportedOperations: ['opened', 'closed', 'tested'],
+    
     init: function(opts) {
         this.numCols      = opts.numCols;
         this.numRows      = opts.numRows;
         this.paper        = Raphael('draw_area');
         this.$stats       = $('#stats');
     },
-    /**
-     * Generate the grid asynchronously.
-     * This method will be a very expensive task.
-     * Therefore, in order to not to block the rendering of browser ui,
-     * I decomposed the task into smaller ones. Each will only generate a row.
-     */
+
     generateGrid: function(callback) {
-        var i, j, x, y,
-            rect,
+        var i, j, x, y, rect,
             normalStyle, nodeSize,
             createRowTask, sleep, tasks,
             nodeSize    = this.nodeSize,
@@ -115,6 +118,7 @@ var View = {
             }
         });
     },
+
     setStartPos: function(gridX, gridY) {
         var coord = this.toPageCoordinate(gridX, gridY);
         if (!this.startNode) {
@@ -129,6 +133,7 @@ var View = {
             this.startNode.attr({ x: coord[0], y: coord[1] }).toFront();
         }
     },
+
     setEndPos: function(gridX, gridY) {
         var coord = this.toPageCoordinate(gridX, gridY);
         if (!this.endNode) {
@@ -143,6 +148,7 @@ var View = {
             this.endNode.attr({ x: coord[0], y: coord[1] }).toFront();
         }
     },
+
     /**
      * Set the attribute of the node at the given coordinate.
      */
@@ -167,7 +173,6 @@ var View = {
             break;
         case 'tested':
             color = (value === true) ? nodeStyle.tested.fill : nodeStyle.normal.fill;
-
             this.colorizeNode(this.rects[gridY][gridX], color);
             this.setCoordDirty(gridX, gridY, true);
             break;
@@ -180,11 +185,13 @@ var View = {
             return;
         }
     },
+
     colorizeNode: function(node, color) {
         node.animate({
             fill: color
         }, this.nodeColorizeEffect.duration);
     },
+
     zoomNode: function(node) {
         node.toFront().attr({
             transform: this.nodeZoomEffect.transform,
@@ -192,6 +199,7 @@ var View = {
             transform: this.nodeZoomEffect.transformBack,
         }, this.nodeZoomEffect.duration);
     },
+
     setWalkableAt: function(gridX, gridY, value) {
         var node, i, blockedNodes = this.blockedNodes;
         if (!blockedNodes) {
@@ -221,7 +229,8 @@ var View = {
             this.zoomNode(node);
         }
     },
-    setWaterAt: function(gridX, gridY, isWater) {
+
+    setWaterAt: function(gridX, gridY, color) {
         var node, i, waterNodes = this.waterNodes;
         if (!waterNodes) {
             waterNodes = this.waterNodes = new Array(this.numRows);
@@ -230,26 +239,26 @@ var View = {
             }
         }
         node = waterNodes[gridY][gridX];
-        if (isWater) {
-            // Clear water node
-            if (node) {
-                this.colorizeNode(node, this.nodeStyle.normal.fill); // Set the color to normal (white)
-                this.zoomNode(node);
-                setTimeout(function() {
-                    node.remove();
-                }, this.nodeZoomEffect.duration);
-                waterNodes[gridY][gridX] = null;
-            }
-        } else {
-            // Draw water node
-            if (node) {
-                return;
-            }
-            node = waterNodes[gridY][gridX] = this.rects[gridY][gridX].clone();
-            this.colorizeNode(node, this.nodeStyle.water.fill); // Set the color to yellow
-            this.zoomNode(node);
+        if (node) {
+            node.remove();
+            waterNodes[gridY][gridX] = null;
         }
+    
+        switch (color) {
+            case 'green':
+                this.colorizeNode(this.rects[gridY][gridX], this.nodeStyle.waterLow.fill);
+                break;
+            case 'orange':
+                this.colorizeNode(this.rects[gridY][gridX], this.nodeStyle.waterModerate.fill);
+                break;
+            case 'red':
+                this.colorizeNode(this.rects[gridY][gridX], this.nodeStyle.waterHigh.fill);
+                break;
+        }
+        this.zoomNode(this.rects[gridY][gridX]);
     },
+    
+
     clearFootprints: function() {
         var i, x, y, coord, coords = this.getDirtyCoords();
         for (i = 0; i < coords.length; ++i) {
@@ -260,6 +269,7 @@ var View = {
             this.setCoordDirty(x, y, false);
         }
     },
+
     clearBlockedNodes: function() {
         var i, j, blockedNodes = this.blockedNodes;
         if (!blockedNodes) {
@@ -274,6 +284,7 @@ var View = {
             }
         }
     },
+
     drawPath: function(path) {
         if (!path.length) {
             return;
@@ -281,6 +292,7 @@ var View = {
         var svgPath = this.buildSvgPath(path);
         this.path = this.paper.path(svgPath).attr(this.pathStyle);
     },
+
     /**
      * Given a path, build its SVG represention.
      */
@@ -296,11 +308,13 @@ var View = {
 
         return strs.join('');
     },
+
     clearPath: function() {
         if (this.path) {
             this.path.remove();
         }
     },
+
     /**
      * Helper function to convert the page coordinate to grid coordinate
      */
@@ -310,8 +324,9 @@ var View = {
             Math.floor(pageY / this.nodeSize)
         ];
     },
+
     /**
-     * helper function to convert the grid coordinate to page coordinate
+     * Helper function to convert the grid coordinate to page coordinate
      */
     toPageCoordinate: function(gridX, gridY) {
         return [
@@ -319,6 +334,7 @@ var View = {
             gridY * this.nodeSize
         ];
     },
+
     showStats: function(opts) {
         var texts = [
             'length: ' + Math.round(opts.pathLength * 100) / 100,
@@ -327,6 +343,7 @@ var View = {
         ];
         $('#stats').show().html(texts.join('<br>'));
     },
+
     setCoordDirty: function(gridX, gridY, isDirty) {
         var x, y,
             numRows = this.numRows,
@@ -345,6 +362,7 @@ var View = {
 
         this.coordDirty[gridY][gridX] = isDirty;
     },
+
     getDirtyCoords: function() {
         var x, y,
             numRows = this.numRows,
@@ -366,4 +384,3 @@ var View = {
         return coords;
     },
 };
-
