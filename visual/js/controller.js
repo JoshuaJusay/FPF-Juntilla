@@ -1,3 +1,9 @@
+/**
+ * The visualization controller works as a state machine.
+ * See files under the `doc` folder for transition descriptions.
+ * See https://github.com/jakesgordon/javascript-state-machine
+ * for the document of the StateMachine module.
+ */
 var Controller = StateMachine.create({
     initial: 'none',
     events: [
@@ -83,7 +89,7 @@ var Controller = StateMachine.create({
         },
         {
             name: 'rest',
-            from: ['draggingStart', 'draggingEnd', 'drawingWall', 'erasingWall','drawingWater'],
+            from: ['draggingStart', 'draggingEnd', 'drawingWall', 'erasingWall', 'drawingWater'],
             to  : 'ready'
         },
     ],
@@ -93,9 +99,6 @@ $.extend(Controller, {
     gridSize: [50, 50], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
 
-    /**
-     * Asynchronous transition from `none` state to `ready` state.
-     */
     onleavenone: function() {
         var numCols = this.gridSize[0],
             numRows = this.gridSize[1];
@@ -117,7 +120,35 @@ $.extend(Controller, {
         this.hookPathFinding();
 
         return StateMachine.ASYNC;
-        // => ready
+    },
+
+    clearAll: function() {
+        this.clearFootprints();
+        View.clearBlockedNodes();
+        
+        var numRows = this.gridSize[1];
+        var numCols = this.gridSize[0];
+
+        for (var y = 0; y < numRows; y++) {
+            for (var x = 0; x < numCols; x++) {
+                // Skip resetting the start and end nodes
+                if (this.isStartOrEndPos(x, y)) continue;
+
+                // Reset only the colored nodes (red, orange, green) back to white
+                var currentFill = View.rects[y][x].attr("fill");
+                if (currentFill === View.nodeStyle.waterHigh.fill ||
+                    currentFill === View.nodeStyle.waterModerate.fill ||
+                    currentFill === View.nodeStyle.waterLow.fill) {
+                    View.setAttributeAt(x, y, 'walkable', true);
+                    View.colorizeNode(View.rects[y][x], View.nodeStyle.normal.fill);
+                }
+            }
+        }
+    },
+
+    // Function to check if a node is either the start or end position
+    isStartOrEndPos: function(gridX, gridY) {
+        return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY);
     },
 
     ondrawWall: function(event, from, to, gridX, gridY) {
@@ -129,7 +160,7 @@ $.extend(Controller, {
     },
 
     ondrawWater: function(event, from, to, gridX, gridY) {
-        this.setWaterAt(gridX, gridY, Panel.selectedColor); // Use selectedColor to set water type
+        this.setWaterAt(gridX, gridY, Panel.selectedColor);
     },
 
     onsearch: function(event, from, to) {
@@ -147,7 +178,6 @@ $.extend(Controller, {
         this.timeSpent = (timeEnd - timeStart).toFixed(4);
 
         this.loop();
-        // => searching
     },
 
     onrestart: function() {
@@ -159,38 +189,35 @@ $.extend(Controller, {
     },
 
     onpause: function(event, from, to) {
-        // => paused
+        // Pausing the search
     },
 
     onresume: function(event, from, to) {
         this.loop();
-        // => searching
     },
 
     oncancel: function(event, from, to) {
         this.clearOperations();
         this.clearFootprints();
-        // => ready
     },
 
     onfinish: function(event, from, to) {
         View.showStats({
             pathLength: PF.Util.pathLength(this.path),
-            timeSpent:  this.timeSpent,
+            timeSpent: this.timeSpent,
             operationCount: this.operationCount,
         });
         View.drawPath(this.path);
-        // => finished
     },
 
     onclear: function(event, from, to) {
         this.clearOperations();
         this.clearFootprints();
-        // => ready
+        this.clearAll(); // Ensure this is called
     },
 
     onmodify: function(event, from, to) {
-        // => modified
+        // Modify event handler
     },
 
     onreset: function(event, from, to) {
@@ -199,11 +226,9 @@ $.extend(Controller, {
             Controller.clearAll();
             Controller.buildNewGrid();
         }, View.nodeColorizeEffect.duration * 1.2);
-        // => ready
     },
 
     onready: function() {
-        console.log('=> ready');
         this.setButtonStates({
             id: 1,
             text: 'Start Search',
@@ -217,23 +242,20 @@ $.extend(Controller, {
             id: 3,
             text: 'Clear Walls',
             enabled: true,
-            callback: $.proxy(this.reset, this),
+            callback: $.proxy(this.reset, this), // Bind reset logic to the Clear Walls button
         });
     },
 
     onstarting: function(event, from, to) {
-        console.log('=> starting');
         this.clearFootprints();
         this.setButtonStates({
             id: 2,
             enabled: true,
         });
         this.search();
-        // => searching
     },
 
     onsearching: function() {
-        console.log('=> searching');
         this.setButtonStates({
             id: 1,
             text: 'Restart Search',
@@ -248,7 +270,6 @@ $.extend(Controller, {
     },
 
     onpaused: function() {
-        console.log('=> paused');
         this.setButtonStates({
             id: 1,
             text: 'Resume Search',
@@ -263,7 +284,6 @@ $.extend(Controller, {
     },
 
     onfinished: function() {
-        console.log('=> finished');
         this.setButtonStates({
             id: 1,
             text: 'Restart Search',
@@ -278,7 +298,6 @@ $.extend(Controller, {
     },
 
     onmodified: function() {
-        console.log('=> modified');
         this.setButtonStates({
             id: 1,
             text: 'Start Search',
@@ -298,7 +317,6 @@ $.extend(Controller, {
                 return this._opened;
             },
             set opened(v) {
-                this._opened = v;
                 Controller.operations.push({
                     x: this.x,
                     y: this.y,
@@ -310,7 +328,6 @@ $.extend(Controller, {
                 return this._closed;
             },
             set closed(v) {
-                this._closed = v;
                 Controller.operations.push({
                     x: this.x,
                     y: this.y,
@@ -322,7 +339,6 @@ $.extend(Controller, {
                 return this._tested;
             },
             set tested(v) {
-                this._tested = v;
                 Controller.operations.push({
                     x: this.x,
                     y: this.y,
@@ -381,23 +397,41 @@ $.extend(Controller, {
     clearAll: function() {
         this.clearFootprints();
         View.clearBlockedNodes();
+        
+        var numRows = this.gridSize[1];
+        var numCols = this.gridSize[0];
+
+        for (var y = 0; y < numRows; y++) {
+            for (var x = 0; x < numCols; x++) {
+                // Skip resetting the start and end nodes
+                if (this.isStartOrEndPos(x, y)) continue;
+
+                // Reset only the colored nodes (red, orange, green) back to white
+                var currentFill = View.rects[y][x].attr("fill");
+                if (currentFill === View.nodeStyle.waterHigh.fill ||
+                    currentFill === View.nodeStyle.waterModerate.fill ||
+                    currentFill === View.nodeStyle.waterLow.fill) {
+                    View.setAttributeAt(x, y, 'walkable', true);
+                    View.colorizeNode(View.rects[y][x], View.nodeStyle.normal.fill);
+                }
+            }
+        }
     },
 
     buildNewGrid: function() {
         this.grid = new PF.Grid(this.gridSize[0], this.gridSize[1]);
     },
 
-    mousedown: function (event) {
+    mousedown: function(event) {
         var coord = View.toGridCoordinate(event.pageX, event.pageY),
             gridX = coord[0],
             gridY = coord[1],
-            grid  = this.grid;
-    
+            grid = this.grid;
+
         if (this.isStartOrEndPos(gridX, gridY)) {
             return;
         }
 
-    
         switch (Panel.selectedColor) {
             case 'black':
                 if (this.can('drawWall') && grid.isWalkableAt(gridX, gridY)) {
@@ -418,7 +452,6 @@ $.extend(Controller, {
                 break;
         }
     },
-    
 
     mousemove: function(event) {
         var coord = View.toGridCoordinate(event.pageX, event.pageY),
@@ -481,21 +514,6 @@ $.extend(Controller, {
     },
 
     setDefaultStartEndPos: function() {
-        var width, height,
-            marginRight, availWidth,
-            centerX, centerY,
-            endX, endY,
-            nodeSize = View.nodeSize;
-
-        width  = $(window).width();
-        height = $(window).height();
-
-        marginRight = $('#algorithm_panel').width();
-        availWidth = width - marginRight;
-
-        centerX = Math.ceil(availWidth / 2 / nodeSize);
-        centerY = Math.floor(height / 2 / nodeSize);
-
         this.setStartPos(2, 48);
         this.setEndPos(48, 2);
     },
@@ -518,7 +536,7 @@ $.extend(Controller, {
     },
 
     setWaterAt: function(gridX, gridY, color) {
-        this.grid.setWalkableAt(gridX, gridY, false);  // Set walkable to false for water
+        this.grid.setWalkableAt(gridX, gridY, false);
         View.setAttributeAt(gridX, gridY, 'water', color);
     },
 

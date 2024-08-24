@@ -23,7 +23,7 @@ var Panel = {
         $('#button2').attr('disabled', 'disabled');
 
         // Add event listener for cell color options
-        $('input[name="ida_heuristic1"]').on('change', function() {
+        $('input[name="cell_option"]').on('change', function() {
             Panel.selectedColor = $(this).val().toLowerCase();  // Ensure the value is lowercase
         });
     },
