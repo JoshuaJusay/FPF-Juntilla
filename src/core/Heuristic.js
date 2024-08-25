@@ -20,7 +20,7 @@ module.exports = {
   * @param {number} T - Time at node n.
   * @return {number} Math.abs(WL * T)
   */
-  safestRoute: function(WL, T) {
+  safestroute: function(WL, T) {
       return Math.abs(WL * T);
   },
 
@@ -34,7 +34,7 @@ module.exports = {
    * @param {number} safestRouteWeight - Weight for the safest-route heuristic.
    * @return {number} Weighted combination of Manhattan distance and safest-route heuristic.
    */
-  EnhancedHeuristic: function(dx, dy, WL, T, manhattanWeight, safestRouteWeight) {
+  enhancedheuristic: function(dx, dy, WL, T, manhattanWeight, safestRouteWeight) {
       // Calculate Manhattan distance
       const manhattanDistance = dx + dy;
       
