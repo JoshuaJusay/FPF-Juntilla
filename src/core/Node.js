@@ -10,40 +10,27 @@
  * @param {number} [T=0] - Time at this node. Defaults to 0.
  */
 function Node(x, y, walkable = true, WL = 0, T = 0) {
-    /**
-     * The x coordinate of the node on the grid.
-     * @type {number}
-     */
     this.x = x;
-
-    /**
-     * The y coordinate of the node on the grid.
-     * @type {number}
-     */
     this.y = y;
-
-    /**
-     * Whether this node can be walked through.
-     * @type {boolean}
-     */
     this.walkable = walkable;
-
-    /**
-     * Water level at this node.
-     * @type {number}
-     */
     this.WL = WL;
-
-    /**
-     * Time at this node.
-     * @type {number}
-     */
     this.T = T;
+
+    // Automatically determine if the node is walkable based on WL and T
+    this.updateWalkability();
 }
+
+/**
+ * Method to update the WL and T of a node and recheck walkability.
+ * @param {number} newWL - New water level at the node.
+ * @param {number} newT - New time at the node.
+ */
+Node.prototype.setWaterLevelAndTime = function (newWL, newT) {
+    this.WL = newWL;
+    this.T = newT;
+    this.updateWalkability(); // Recalculate walkability after updating WL and T
+};
 
 module.exports = Node;
 
-
-//Added Water level (WL) and Time (T) to accomodate the SafestRoute Heuristics
-//Should also add arguments to line 29-41 whether it is walkable or not based on water levels and time
 
