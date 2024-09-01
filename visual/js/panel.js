@@ -36,15 +36,15 @@ var Panel = {
                     break;
                 case 'green':
                     Panel.currentWL = 1;  // Low Water Level
-                    Panel.currentT = 1;
+                    Panel.currentT = Math.floor(Math.random() * 10) + 1;  // Randomize T from 1-10
                     break;
                 case 'orange':
                     Panel.currentWL = 2;  // Moderate Water Level
-                    Panel.currentT = 2;
+                    Panel.currentT = Math.floor(Math.random() * 10) + 1;  // Randomize T from 1-10
                     break;
                 case 'red':
                     Panel.currentWL = 3;  // High Water Level
-                    Panel.currentT = 3;
+                    Panel.currentT = Math.floor(Math.random() * 10) + 1;  // Randomize T from 1-10
                     break;
             }
         });
@@ -57,7 +57,6 @@ var Panel = {
             T: this.currentT
         };
     },
-
 
     /**
      * Get the user selected path-finder.

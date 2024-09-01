@@ -135,13 +135,13 @@ $.extend(Controller, {
         const node = this.grid.getNodeAt(gridX, gridY);
 
         if (color === 'green') {
-            node.setWaterLevelAndTime(2, 5); // Green color: walkable, WL = 2, T = 5
+            node.setWaterLevelAndTime(2, 3); // Green color: walkable, WL = 1, T = 3
             node.walkable = true; // Ensure the node remains walkable
         } else if (color === 'orange') {
-            node.setWaterLevelAndTime(3, 6); // Orange color: walkable, WL = 3, T = 6
+            node.setWaterLevelAndTime(3, 3); // Orange color: walkable, WL = 2, T = 4
             node.walkable = true; // Ensure the node remains walkable
         } else if (color === 'red') {
-            node.setWaterLevelAndTime(4, 7); // Red color: walkable, WL = 4, T = 7
+            node.setWaterLevelAndTime(4, 4); // Red color: walkable, WL = 3, T = 5
             node.walkable = true; // Ensure the node remains walkable
         } else {
             node.walkable = false;
@@ -582,5 +582,3 @@ $.extend(Controller, {
     },
 });
 
-// Additional logic or functions related to the Controller
-// ... [Additional helper methods remain unchanged] ...

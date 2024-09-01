@@ -34,12 +34,12 @@ module.exports = {
      * @param {number} w2 - Weight for the safest-route heuristic.
      * @return {number} Weighted combination of Manhattan distance and safest-route heuristic.
      */
-    enhancedheuristic: function (dx, dy, WL, T, w1, w2) {
+    enhancedheuristic: function (dx, dy, WL, T, w1 = 0.5, w2 = 0.5) {
         // Calculate Manhattan distance
         const manhattan = dx + dy;
 
         // Calculate safest-route value
-        const safest = Math.abs(WL * T);
+        const safestRoute = Math.abs(WL * T);
 
         // Combine the two heuristics using the provided weights
         return (manhattan * w1) + (safestRoute * w2);
