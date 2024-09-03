@@ -1,3 +1,5 @@
+
+
 /**
  * The visualization controller works as a state machine.
  * See files under the `doc` folder for transition descriptions.
@@ -7,91 +9,23 @@
 var Controller = StateMachine.create({
     initial: 'none',
     events: [
-        {
-            name: 'init',
-            from: 'none',
-            to: 'ready'
-        },
-        {
-            name: 'search',
-            from: 'starting',
-            to: 'searching'
-        },
-        {
-            name: 'pause',
-            from: 'searching',
-            to: 'paused'
-        },
-        {
-            name: 'finish',
-            from: 'searching',
-            to: 'finished'
-        },
-        {
-            name: 'resume',
-            from: 'paused',
-            to: 'searching'
-        },
-        {
-            name: 'cancel',
-            from: 'paused',
-            to: 'ready'
-        },
-        {
-            name: 'modify',
-            from: 'finished',
-            to: 'modified'
-        },
-        {
-            name: 'reset',
-            from: '*',
-            to: 'ready'
-        },
-        {
-            name: 'clear',
-            from: ['finished', 'modified'],
-            to: 'ready'
-        },
-        {
-            name: 'start',
-            from: ['ready', 'modified', 'restarting'],
-            to: 'starting'
-        },
-        {
-            name: 'restart',
-            from: ['searching', 'finished'],
-            to: 'restarting'
-        },
-        {
-            name: 'dragStart',
-            from: ['ready', 'finished'],
-            to: 'draggingStart'
-        },
-        {
-            name: 'dragEnd',
-            from: ['ready', 'finished'],
-            to: 'draggingEnd'
-        },
-        {
-            name: 'drawWall',
-            from: ['ready', 'finished'],
-            to: 'drawingWall'
-        },
-        {
-            name: 'eraseWall',
-            from: ['ready', 'finished'],
-            to: 'erasingWall'
-        },
-        {
-            name: 'drawWater',
-            from: ['ready', 'finished'],
-            to: 'drawingWater'
-        },
-        {
-            name: 'rest',
-            from: ['draggingStart', 'draggingEnd', 'drawingWall', 'erasingWall', 'drawingWater'],
-            to: 'ready'
-        },
+        { name: 'init', from: 'none', to: 'ready' },
+        { name: 'search', from: 'starting', to: 'searching' },
+        { name: 'pause', from: 'searching', to: 'paused' },
+        { name: 'finish', from: 'searching', to: 'finished' },
+        { name: 'resume', from: 'paused', to: 'searching' },
+        { name: 'cancel', from: 'paused', to: 'ready' },
+        { name: 'modify', from: 'finished', to: 'modified' },
+        { name: 'reset', from: '*', to: 'ready' },
+        { name: 'clear', from: ['finished', 'modified'], to: 'ready' },
+        { name: 'start', from: ['ready', 'modified', 'restarting'], to: 'starting' },
+        { name: 'restart', from: ['searching', 'finished'], to: 'restarting' },
+        { name: 'dragStart', from: ['ready', 'finished'], to: 'draggingStart' },
+        { name: 'dragEnd', from: ['ready', 'finished'], to: 'draggingEnd' },
+        { name: 'drawWall', from: ['ready', 'finished'], to: 'drawingWall' },
+        { name: 'eraseWall', from: ['ready', 'finished'], to: 'erasingWall' },
+        { name: 'drawWater', from: ['ready', 'finished'], to: 'drawingWater' },
+        { name: 'rest', from: ['draggingStart', 'draggingEnd', 'drawingWall', 'erasingWall', 'drawingWater'], to: 'ready' },
     ],
 });
 
@@ -113,7 +47,12 @@ $.extend(Controller, {
             numRows = this.gridSize[1];
 
         this.grid = new PF.Grid(numCols, numRows);
-
+        //console.log(`Grid initialized:`, this.grid);
+        //const testNode = this.grid.getNodeAt(0, 0);
+       // console.log(`Test Node in Controller:`, testNode);
+       // console.log(`Test Node has setWaterLevelAndTime method:`, typeof testNode.setWaterLevelAndTime === 'function');
+       // console.log('Node class being used:', Node);
+        
         View.init({
             numCols: numCols,
             numRows: numRows
@@ -132,23 +71,39 @@ $.extend(Controller, {
     },
 
     setWaterAt: function (gridX, gridY, color) {
+        if (gridX < 0 || gridY < 0 || gridX >= this.gridSize[0] || gridY >= this.gridSize[1]) {
+            console.error(`Coordinates (${gridX}, ${gridY}) are out of bounds.`);
+            return;
+        }
         const node = this.grid.getNodeAt(gridX, gridY);
+        console.log(`Node at (${gridX}, ${gridY}):`, node);
+        console.log(`Has setWaterLevelAndTime:`, typeof node.setWaterLevelAndTime === 'function');
 
-        if (color === 'green') {
-            node.setWaterLevelAndTime(2, 5); // Green color: walkable, WL = 2, T = 5
-            node.walkable = true; // Ensure the node remains walkable
-        } else if (color === 'orange') {
-            node.setWaterLevelAndTime(3, 6); // Orange color: walkable, WL = 3, T = 6
-            node.walkable = true; // Ensure the node remains walkable
-        } else if (color === 'red') {
-            node.setWaterLevelAndTime(4, 7); // Red color: walkable, WL = 4, T = 7
-            node.walkable = true; // Ensure the node remains walkable
+        if (typeof node.setWaterLevelAndTime === 'function') {
+            switch (color) {
+                case 'green':
+                    node.setWaterLevelAndTime(2, 5); // Green color: walkable, WL = 2, T = 5
+                    node.walkable = true; // Ensure the node remains walkable
+                    break;
+                case 'orange':
+                    node.setWaterLevelAndTime(3, 6); // Orange color: walkable, WL = 3, T = 6
+                    node.walkable = true; // Ensure the node remains walkable
+                    break;
+                case 'red':
+                    node.setWaterLevelAndTime(4, 7); // Red color: not walkable, WL = 4, T = 7
+                    node.walkable = false; // Red makes the node non-walkable
+                    break;
+                default:
+                    node.setWaterLevelAndTime(0, 0); // Reset WL and T for other colors
+                    node.walkable = false;
+                    break;
+            }
         } else {
-            node.walkable = false;
-            node.setWaterLevelAndTime(0, 0); // Reset WL and T for other colors
+            console.error('Node does not have setWaterLevelAndTime method:', node);
         }
 
         View.setAttributeAt(gridX, gridY, 'water', color);
+        View.setAttributeAt(gridX, gridY, 'walkable', node.walkable);
     },
 
     clearAll: function () {
@@ -181,13 +136,6 @@ $.extend(Controller, {
 
     oneraseWall: function (event, from, to, gridX, gridY) {
         this.setWalkableAt(gridX, gridY, true);
-    },
-
-    ondrawWater: function (event, from, to, gridX, gridY) {
-        const node = this.grid.getNodeAt(gridX, gridY);
-        const { WL, T } = Panel.getCurrentWaterLevelAndTime();
-        node.setWaterLevelAndTime(WL, T); // Update node's water level and time
-        View.setWaterAt(gridX, gridY, Panel.selectedColor);
     },
 
     onsearch: function (event, from, to) {
@@ -324,20 +272,6 @@ $.extend(Controller, {
         });
     },
 
-    onmodified: function () {
-        this.setButtonStates({
-            id: 1,
-            text: 'Start Search',
-            enabled: true,
-            callback: $.proxy(this.start, this),
-        }, {
-            id: 2,
-            text: 'Clear Path',
-            enabled: true,
-            callback: $.proxy(this.clear, this),
-        });
-    },
-
     hookPathFinding: function () {
         PF.Node.prototype = {
             get opened() {
@@ -452,33 +386,38 @@ $.extend(Controller, {
     mousedown: function (event) {
         var coord = View.toGridCoordinate(event.pageX, event.pageY),
             gridX = coord[0],
-            gridY = coord[1],
-            grid = this.grid;
+            gridY = coord[1];
 
         if (this.isStartOrEndPos(gridX, gridY)) {
             return;
         }
 
+        if (gridX < 0 || gridY < 0 || gridX >= this.gridSize[0] || gridY >= this.gridSize[1]) {
+            console.error(`Coordinates (${gridX}, ${gridY}) are out of bounds.`);
+            return;
+        }
+
         switch (Panel.selectedColor) {
             case 'black':
-                if (this.can('drawWall') && grid.isWalkableAt(gridX, gridY)) {
+                if (this.can('drawWall') && this.grid.isWalkableAt(gridX, gridY)) {
                     this.drawWall(gridX, gridY);
                 }
                 break;
             case 'green':
             case 'orange':
             case 'red':
-                if (this.can('drawWater') && grid.isWalkableAt(gridX, gridY)) {
+                if (this.can('drawWater') && this.grid.isWalkableAt(gridX, gridY)) {
                     this.drawWater(gridX, gridY);
                 }
                 break;
             case 'white':
-                if (this.can('eraseWall') && !grid.isWalkableAt(gridX, gridY)) {
+                if (this.can('eraseWall') && !this.grid.isWalkableAt(gridX, gridY)) {
                     this.eraseWall(gridX, gridY);
                 }
                 break;
         }
     },
+
 
     mousemove: function (event) {
         var coord = View.toGridCoordinate(event.pageX, event.pageY),
@@ -563,12 +502,6 @@ $.extend(Controller, {
         View.setAttributeAt(gridX, gridY, 'walkable', walkable);
     },
 
-    setWaterAt: function (gridX, gridY, color) {
-        const node = this.grid.getNodeAt(gridX, gridY);
-        node.walkable = false;
-        View.setAttributeAt(gridX, gridY, 'water', color);
-    },
-
     isStartPos: function (gridX, gridY) {
         return gridX === this.startX && gridY === this.startY;
     },
@@ -580,7 +513,6 @@ $.extend(Controller, {
     isStartOrEndPos: function (gridX, gridY) {
         return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY);
     },
+    
 });
 
-// Additional logic or functions related to the Controller
-// ... [Additional helper methods remain unchanged] ...

@@ -25,12 +25,30 @@ function Node(x, y, walkable = true, WL = 0, T = 0) {
  * @param {number} newWL - New water level at the node.
  * @param {number} newT - New time at the node.
  */
-Node.prototype.setWaterLevelAndTime = function (newWL, newT) {
+Node.prototype.setWaterLevelAndTime = function(newWL, newT) {
     this.WL = newWL;
     this.T = newT;
     this.updateWalkability(); // Recalculate walkability after updating WL and T
 };
 
+/**
+ * Method to determine if the node is walkable based on WL and T.
+ */
+Node.prototype.updateWalkability = function () {
+    if (this.WL === 0 && this.T === 0) {
+        this.walkable = true; // Default walkable state
+    } else if (this.WL === 2 && this.T <= 5) {  // Green conditions
+        this.walkable = true;
+    } else if (this.WL === 3 && this.T <= 6) {  // Orange conditions
+        this.walkable = true;
+    } else if (this.WL === 4 && this.T <= 7) {  // Red conditions
+        this.walkable = false; // Red conditions are not walkable
+    } else {
+        this.walkable = false; // Not walkable for other conditions
+    }
+};
+
 module.exports = Node;
+
 
 
