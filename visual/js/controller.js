@@ -523,6 +523,9 @@ $.extend(Controller, {
                     case 'black':
                         this.setWalkableAt(gridX, gridY, false, 0, 0, "black");
                         break;
+                    case 'white':
+                        this.setWalkableAt(gridX, gridY, true, 0, 0, "white");
+                        break;
                     case 'green':
                         this.setWalkableAt(gridX, gridY, true, 1, 2, "green");
                         break;

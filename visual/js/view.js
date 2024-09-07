@@ -163,6 +163,10 @@ var View = {
                 color = value ? nodeStyle.normal.fill : nodeStyle.blocked.fill;
                 this.setWalkableAt(gridX, gridY, value);
                 break;
+            case 'white':
+                this.colorizeNode(this.rects[gridY][gridX], nodeStyle.normal.fill);
+                this.setWalkableAt(gridX, gridY, value);
+                break;
             case 'green':
                 this.colorizeNode(this.rects[gridY][gridX], nodeStyle.waterLow.fill);
                 this.setWaterAt(gridX, gridY, true);
