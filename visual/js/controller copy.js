@@ -95,14 +95,7 @@ var Controller = StateMachine.create({
     ],
 });
 
-$.handleCellClick = function (gridX, gridY) {
-    const node = this.grid.getNodeAt(gridX, gridY);
-    if (node.walkable) {
-        const { WL, T } = Panel.getCurrentWaterLevelAndTime();
-        node.setWaterLevelAndTime(WL, T); // Update node's water level and time
-        View.setWaterAt(gridX, gridY, Panel.selectedColor); // Update the visual representation
-    }
-};
+
 
 $.extend(Controller, {
     gridSize: [50, 50], // number of nodes horizontally and vertically
@@ -131,25 +124,7 @@ $.extend(Controller, {
         return StateMachine.ASYNC;
     },
 
-    setWaterAt: function (event, from, to, gridX, gridY, color) {
-        var node = this.grid.getNodeAt(gridX, gridY);
 
-        if (color == 'green') {
-            node.setWaterLevelAndTime(2, 3); // Green color: walkable, WL = 1, T = 3
-            node.walkable = true; // Ensure the node remains walkable
-        } else if (color == 'orange') {
-            node.setWaterLevelAndTime(3, 3); // Orange color: walkable, WL = 2, T = 4
-            node.walkable = true; // Ensure the node remains walkable
-        } else if (color == 'red') {
-            node.setWaterLevelAndTime(4, 4); // Red color: walkable, WL = 3, T = 5
-            node.walkable = true; // Ensure the node remains walkable
-        } else {
-            node.walkable = false;
-            node.setWaterLevelAndTime(0, 0); // Reset WL and T for other colors
-        }
-
-        View.setAttributeAt(gridX, gridY, 'water', color);
-    },
 
     clearAll: function () {
         this.clearFootprints();
@@ -183,13 +158,6 @@ $.extend(Controller, {
 
     oneraseWall: function (event, from, to, gridX, gridY) {
         this.setWalkableAt(gridX, gridY, true);
-    },
-
-    ondrawWater: function (event, from, to, gridX, gridY) {
-        const node = this.grid.getNodeAt(gridX, gridY);
-        const { WL, T } = Panel.getCurrentWaterLevelAndTime();
-        node.setWaterLevelAndTime(WL, T); // Update node's water level and time
-        View.setWaterAt(gridX, gridY, Panel.selectedColor);
     },
 
     onsearch: function (event, from, to) {
