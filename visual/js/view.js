@@ -80,16 +80,16 @@ var View = {
             paper = this.paper,
             rects = this.rects = [],
             $stats = this.$stats;
-    
+
         paper.setSize(numCols * nodeSize, numRows * nodeSize);
-    
+
         createRowTask = function (rowId) {
             return function (done) {
                 rects[rowId] = [];
                 for (j = 0; j < numCols; ++j) {
                     x = j * nodeSize;
                     y = rowId * nodeSize;
-    
+
                     rect = paper.rect(x, y, nodeSize, nodeSize);
                     rect.attr(normalStyle);
                     rects[rowId].push(rect);
@@ -101,24 +101,24 @@ var View = {
                 done(null);
             };
         };
-    
+
         sleep = function (done) {
             setTimeout(function () {
                 done(null);
             }, 0);
         };
-    
+
         tasks = [];
         for (i = 0; i < numRows; ++i) {
             tasks.push(createRowTask(i));
             tasks.push(sleep);
         }
-    
+
         async.series(tasks, function () {
             if (callback) {
                 callback();
             }
-    
+
             // Forcefully bring the start and end nodes to the front after grid generation
             if (View.startNode) {
                 View.startNode.toFront();
@@ -128,6 +128,7 @@ var View = {
             }
         });
     },
+
 
     setStartPos: function (gridX, gridY) {
         var coord = this.toPageCoordinate(gridX, gridY);
@@ -144,7 +145,7 @@ var View = {
                 .toFront();  // Ensure it's visible on top of other nodes
         }
     },
-    
+
     setEndPos: function (gridX, gridY) {
         var coord = this.toPageCoordinate(gridX, gridY);
         if (!this.endNode) {
@@ -160,20 +161,17 @@ var View = {
                 .toFront();  // Ensure it's visible on top of other nodes
         }
     },
-    
-    redrawStartEndNodes: function() {
-        // Bring start and end nodes to the front to ensure visibility
-        if (this.startNode) {
-            this.startNode.toFront();  // Bring start node to the front
-            this.startNode.attr(this.nodeStyle.start);  // Reapply start node style for safety
-        }
-    
-        if (this.endNode) {
-            this.endNode.toFront();  // Bring end node to the front
-            this.endNode.attr(this.nodeStyle.end);  // Reapply end node style for safety
-        }
+
+    setStart: function (gridX, gridY) {
+        var nodeStyle = this.nodeStyle;
+        this.colorizeNode(this.rects[gridY][gridX], nodeStyle.start.fill);
     },
-    
+
+    setEnd: function (gridX, gridY) {
+        var nodeStyle = this.nodeStyle;
+        this.colorizeNode(this.rects[gridY][gridX], nodeStyle.end.fill);
+    },
+
 
     setAttributeAt: function (gridX, gridY, attr, value) {
         var color, nodeStyle = this.nodeStyle;
@@ -217,6 +215,8 @@ var View = {
                 break;
         }
     },
+
+
 
     colorizeNode: function (node, color) {
         node.animate({
@@ -411,5 +411,18 @@ var View = {
             }
         }
         return coords;
+    },
+
+    redrawStartEndNodes: function () {
+        // Bring start and end nodes to the front to ensure visibility
+        if (this.startNode) {
+            this.startNode.attr(this.nodeStyle.start);  // Reapply start node style
+            this.startNode.toFront();  // Ensure it's visible on top of other nodes
+        }
+
+        if (this.endNode) {
+            this.endNode.attr(this.nodeStyle.end);  // Reapply end node style
+            this.endNode.toFront();  // Ensure it's visible on top of other nodes
+        }
     },
 };

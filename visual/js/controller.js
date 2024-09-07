@@ -146,18 +146,18 @@ $.extend(Controller, {
 
     // ------------------ PRESETS ------------------------------------------------ //
 
-    mapPreset1: function () {   
+    mapPreset1: function () {
         var numCols = this.gridSize[0],
             numRows = this.gridSize[1],
             gridData = [];
-    
+
         // Collect grid data (walkability, WL, T, color for each node)
         for (var x = 0; x < numCols; x++) {
             gridData[x] = [];
             for (var y = 0; y < numRows; y++) {
                 var node = this.grid.getNodeAt(x, y);
                 var rectColor = View.rects[y][x].attr("fill"); // Assuming you use SVG and fill attribute for color
-    
+
                 gridData[x][y] = {
                     walkable: node.walkable,
                     WL: node.WL,
@@ -166,7 +166,7 @@ $.extend(Controller, {
                 };
             }
         }
-    
+
         // Save preset including grid data and start/end positions
         var preset1 = {
             gridSize: this.gridSize,
@@ -174,96 +174,114 @@ $.extend(Controller, {
             startPos: { x: this.startX, y: this.startY }, // Save start position
             endPos: { x: this.endX, y: this.endY }        // Save end position
         };
-    
+
         console.log("Saving grid preset:", preset1);  // Log the saved data to the console
         localStorage.setItem('myGridPreset', JSON.stringify(preset1));
-    
-       
+
+
         window.location.reload()
     },
-    
+
 
     // Load Preset
 
-// Load Preset
+    // Load Preset
 
-// Load Preset
+    // Load Preset
 
-// Load Preset
+    // Load Preset
 
-loadPreset: function () {
-    var self = this;
+    loadPreset: function () {
+        var self = this;
 
-    // Clear the existing grid and ensure there are no visual remains
-    if (self.grid) {
-        self.grid = null;
-        $('#draw_area').empty();
-    }
-
-    // Retrieve the preset from localStorage
-    var preset = JSON.parse(localStorage.getItem('myGridPreset'));
-
-    if (!preset) {
-        console.log('No preset found');
-        return;
-    }
-
-    console.log("Loaded grid preset:", preset);
-
-    // Reinitialize the grid with loaded data
-    self.gridSize = preset.gridSize;
-    self.grid = new PF.Grid(self.gridSize[0], self.gridSize[1]);
-
-    // Reinitialize the view (grid rendering)
-    View.init({
-        numCols: self.gridSize[0],
-        numRows: self.gridSize[1]
-    });
-
-    // Regenerate the grid visually
-    View.generateGrid(function () {
-        var gridData = preset.gridData;
-        for (var x = 0; x < self.gridSize[0]; x++) {
-            for (var y = 0; y < self.gridSize[1]; y++) {
-                var nodeData = gridData[x][y];
-                var node = self.grid.getNodeAt(x, y);
-
-                node.walkable = nodeData.walkable;
-                node.WL = nodeData.WL;
-                node.T = nodeData.T;
-
-                // Update the visual representation of the node
-                if (!node.walkable) {
-                    View.setAttributeAt(x, y, 'black', false);
-                } else if (node.WL === 1) {
-                    View.setWaterAt(x, y, 'green');
-                } else if (node.WL === 2) {
-                    View.setWaterAt(x, y, 'orange');
-                } else if (node.WL === 3) {
-                    View.setWaterAt(x, y, 'red');
-                } else {
-                    View.setAttributeAt(x, y, 'white', true);
-                }
-            }
+        // Clear the existing grid and ensure there are no visual remains
+        if (self.grid) {
+            self.grid = null;
+            $('#draw_area').empty();
         }
 
-        // Set the start and end nodes after regenerating the grid
-        self.setStartPos(preset.startPos.x, preset.startPos.y);
-        self.setEndPos(preset.endPos.x, preset.endPos.y);
+        // Retrieve the preset from localStorage
+        var preset = JSON.parse(localStorage.getItem('myGridPreset'));
 
-        // Ensure start and end nodes are brought to the front
-        View.redrawStartEndNodes();
-    });
+        if (!preset) {
+            console.log('No preset found');
+            return;
+        }
 
-    // Bind events and transition to the ready state
-    self.bindEvents();
-    self.transition();
+        console.log("Loaded grid preset:", preset);
 
-    console.log('Preset loaded successfully and grid redrawn');
-},
+        // Reinitialize the grid with loaded data
+        self.gridSize = preset.gridSize;
+        self.grid = new PF.Grid(self.gridSize[0], self.gridSize[1]);
 
-    
-    
+        // Reinitialize the view (grid rendering)
+        View.init({
+            numCols: self.gridSize[0],
+            numRows: self.gridSize[1]
+        });
+
+        // Regenerate the grid visually
+        View.generateGrid(function () {
+            var gridData = preset.gridData;
+
+
+
+            for (var x = 0; x < self.gridSize[0]; x++) {
+                for (var y = 0; y < self.gridSize[1]; y++) {
+                    var nodeData = gridData[x][y];
+                    var node = self.grid.getNodeAt(x, y);
+
+                    node.walkable = nodeData.walkable;
+                    node.WL = nodeData.WL;
+                    node.T = nodeData.T;
+
+                    // Update the visual representation of the node
+                    if (!node.walkable) {
+                        View.setAttributeAt(x, y, 'black', false);
+                    } else if (node.WL === 1) {
+                        View.setWaterAt(x, y, 'green');
+                    } else if (node.WL === 2) {
+                        View.setWaterAt(x, y, 'orange');
+                    } else if (node.WL === 3) {
+                        View.setWaterAt(x, y, 'red');
+                    } else {
+                        View.setAttributeAt(x, y, 'white', true);
+                    }
+
+                    View.setStart(2, 48);
+                    View.setEnd(48, 2);
+
+                }
+            }
+
+
+        });
+
+
+
+        console.log('Preset loaded successfully and grid redrawn');
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // ------------------ PRESETS ------------------------------------------------ //
 
     clearAll: function () {
