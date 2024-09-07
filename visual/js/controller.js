@@ -247,23 +247,12 @@ loadPreset: function () {
             }
         }
 
-        // Forcefully add start and end nodes
+        // Set the start and end nodes after regenerating the grid
         self.setStartPos(preset.startPos.x, preset.startPos.y);
         self.setEndPos(preset.endPos.x, preset.endPos.y);
 
-        // Directly add green for start and red for end
-        View.setStartPos(preset.startPos.x, preset.startPos.y);
-        View.setEndPos(preset.endPos.x, preset.endPos.y);
-
-        // Ensure the start and end nodes are brought to the front
-        setTimeout(function () {
-            if (View.startNode) {
-                View.startNode.toFront(); // Forcefully bring to the front
-            }
-            if (View.endNode) {
-                View.endNode.toFront(); // Forcefully bring to the front
-            }
-        }, 100); // Delayed to ensure grid is drawn first
+        // Ensure start and end nodes are brought to the front
+        View.redrawStartEndNodes();
     });
 
     // Bind events and transition to the ready state
@@ -273,24 +262,6 @@ loadPreset: function () {
     console.log('Preset loaded successfully and grid redrawn');
 },
 
-
-    
-    
-    
-    
-
-
-
-    
-    
-    
-    
-    
- 
-    
-    
-    
-    
     
     
     // ------------------ PRESETS ------------------------------------------------ //
