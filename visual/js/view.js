@@ -22,12 +22,14 @@ var View = {
             'stroke-opacity': 0.2,
         },
         start: {
-            fill: 'green',
-            'stroke-opacity': 0.2,
+            fill: 'green',  // Make sure start node is green
+            'stroke-opacity': 1.0,
+            'stroke': 'black',  // Optional: Add stroke for visibility
         },
         end: {
-            fill: 'red',
-            'stroke-opacity': 0.2,
+            fill: 'red',  // Make sure end node is red
+            'stroke-opacity': 1.0,
+            'stroke': 'black',  // Optional: Add stroke for visibility
         },
         opened: {
             fill: '#98fb98',
@@ -116,6 +118,14 @@ var View = {
             if (callback) {
                 callback();
             }
+
+            // Bring start and end nodes to the front after grid generation
+            if (View.startNode) {
+                View.startNode.toFront();
+            }
+            if (View.endNode) {
+                View.endNode.toFront();
+            }
         });
     },
 
@@ -127,10 +137,12 @@ var View = {
                 coord[1],
                 this.nodeSize,
                 this.nodeSize
-            ).attr(this.nodeStyle.normal)
+            ).attr(this.nodeStyle.start)  // Apply start node style directly
                 .animate(this.nodeStyle.start, 1000);
         } else {
-            this.startNode.attr({ x: coord[0], y: coord[1] }).toFront();
+            this.startNode.attr({ x: coord[0], y: coord[1] })
+                .attr(this.nodeStyle.start)
+                .toFront();  // Ensure it's visible on top of other nodes
         }
     },
 
@@ -142,16 +154,15 @@ var View = {
                 coord[1],
                 this.nodeSize,
                 this.nodeSize
-            ).attr(this.nodeStyle.normal)
+            ).attr(this.nodeStyle.end)  // Apply end node style directly
                 .animate(this.nodeStyle.end, 1000);
         } else {
-            this.endNode.attr({ x: coord[0], y: coord[1] }).toFront();
+            this.endNode.attr({ x: coord[0], y: coord[1] })
+                .attr(this.nodeStyle.end)
+                .toFront();  // Ensure it's visible on top of other nodes
         }
     },
 
-    /**
-     * Set the attribute of the node at the given coordinate.
-     */
     setAttributeAt: function (gridX, gridY, attr, value) {
         var color, nodeStyle = this.nodeStyle;
         switch (attr) {
@@ -191,10 +202,6 @@ var View = {
                 color = (value === true) ? nodeStyle.tested.fill : nodeStyle.normal.fill;
                 this.colorizeNode(this.rects[gridY][gridX], color);
                 this.setCoordDirty(gridX, gridY, true);
-                break;
-            case 'parent':
-                // XXX: Maybe draw a line from this node to its parent?
-                // This would be expensive.
                 break;
         }
     },
@@ -271,7 +278,6 @@ var View = {
         this.zoomNode(this.rects[gridY][gridX]);
     },
 
-
     clearFootprints: function () {
         var i, x, y, coord, coords = this.getDirtyCoords();
         for (i = 0; i < coords.length; ++i) {
@@ -298,6 +304,14 @@ var View = {
         }
     },
 
+    clearNode: function (x, y) {
+        var node = this.rects[y][x];  // Assuming you're using SVG or divs for the grid
+        if (node) {
+            node.remove();  // Remove the visual element for the node
+            this.rects[y][x] = null;  // Clear the reference
+        }
+    },
+
     drawPath: function (path) {
         if (!path.length) {
             return;
@@ -306,9 +320,6 @@ var View = {
         this.path = this.paper.path(svgPath).attr(this.pathStyle);
     },
 
-    /**
-     * Given a path, build its SVG represention.
-     */
     buildSvgPath: function (path) {
         var i, strs = [], size = this.nodeSize;
 
@@ -328,9 +339,6 @@ var View = {
         }
     },
 
-    /**
-     * Helper function to convert the page coordinate to grid coordinate
-     */
     toGridCoordinate: function (pageX, pageY) {
         return [
             Math.floor(pageX / this.nodeSize),
@@ -338,9 +346,6 @@ var View = {
         ];
     },
 
-    /**
-     * Helper function to convert the grid coordinate to page coordinate
-     */
     toPageCoordinate: function (gridX, gridY) {
         return [
             gridX * this.nodeSize,
@@ -352,7 +357,6 @@ var View = {
         var texts = [
             'length: ' + Math.round(opts.pathLength * 100) / 100,
             'time: ' + opts.timeSpent + 'ms',
-            'operations: ' + opts.operationCount
         ];
         $('#stats').show().html(texts.join('<br>'));
     },
@@ -395,5 +399,18 @@ var View = {
             }
         }
         return coords;
+    },
+
+    redrawStartEndNodes: function() {
+        // Bring start and end nodes to the front to ensure visibility
+        if (this.startNode) {
+            this.startNode.attr(this.nodeStyle.start);  // Reapply start node style
+            this.startNode.toFront();  // Ensure it's visible on top of other nodes
+        }
+        
+        if (this.endNode) {
+            this.endNode.attr(this.nodeStyle.end);  // Reapply end node style
+            this.endNode.toFront();  // Ensure it's visible on top of other nodes
+        }
     },
 };

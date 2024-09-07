@@ -146,110 +146,153 @@ $.extend(Controller, {
 
     // ------------------ PRESETS ------------------------------------------------ //
 
-    mapPreset1: function () {
+    mapPreset1: function () {   
         var numCols = this.gridSize[0],
             numRows = this.gridSize[1],
             gridData = [];
-
-        // Collect grid data (walkability, WL, T for each node)
+    
+        // Collect grid data (walkability, WL, T, color for each node)
         for (var x = 0; x < numCols; x++) {
             gridData[x] = [];
             for (var y = 0; y < numRows; y++) {
                 var node = this.grid.getNodeAt(x, y);
+                var rectColor = View.rects[y][x].attr("fill"); // Assuming you use SVG and fill attribute for color
+    
                 gridData[x][y] = {
                     walkable: node.walkable,
-                    WL: 0,
-                    T: 0
+                    WL: node.WL,
+                    T: node.T,
+                    color: rectColor  // Save the color of the node
                 };
             }
         }
-
+    
         // Save preset including grid data and start/end positions
         var preset1 = {
             gridSize: this.gridSize,
             gridData: gridData,
             startPos: { x: this.startX, y: this.startY }, // Save start position
-            endPos: { x: this.endX, y: this.endY }         // Save end position
+            endPos: { x: this.endX, y: this.endY }        // Save end position
         };
-
-        
-
+    
         console.log("Saving grid preset:", preset1);  // Log the saved data to the console
         localStorage.setItem('myGridPreset', JSON.stringify(preset1));
-        alert('Preset saved successfully!');
-   },
-
-    // Load Preset
-
-    loadPreset: function () {
-        // Clear the existing grid and ensure there are no visual remains
-        if (this.grid) {
-            this.grid = null; // Remove current grid data
-            $('#draw_area').empty(); // Clear the draw area to remove the old grid
-        }
     
-        // Retrieve the preset from localStorage
-        var preset = JSON.parse(localStorage.getItem('myGridPreset'));
-    
-        if (!preset) {
-            alert('No preset found');
-            return;
-        }
-    
-        console.log("Loaded grid preset:", preset);  // Log the loaded data to the console
-    
-        // Reinitialize the grid with loaded data
-        this.gridSize = preset.gridSize;
-        this.grid = new PF.Grid(this.gridSize[0], this.gridSize[1]);
-    
-        // Reinitialize the view (grid rendering)
-        View.init({
-            numCols: this.gridSize[0],
-            numRows: this.gridSize[1]
-        });
-    
-        // Regenerate the grid visually
-        View.generateGrid(function () {
-            // Apply the grid data
-            var gridData = preset.gridData;
-            for (var x = 0; x < Controller.gridSize[0]; x++) {
-                for (var y = 0; y < Controller.gridSize[1]; y++) {
-                    var nodeData = gridData[x][y];
-                    var node = Controller.grid.getNodeAt(x, y);
-                    node.walkable = nodeData.walkable;
-                    node.WL = nodeData.WL;
-                    node.T = nodeData.T;
-    
-                    // Update the visual representation of nodes (walls, water levels)
-                    if (!node.walkable) {
-                        View.setWaterAt(x, y, 'black'); // Wall
-                    } else if (node.WL === 1) {
-                        View.setWaterAt(x, y, 'green'); // Low water
-                    } else if (node.WL === 2) {
-                        View.setWaterAt(x, y, 'orange'); // Moderate water
-                    } else if (node.WL === 3) {
-                        View.setWaterAt(x, y, 'red'); // High water
-                    } else {
-                        View.setWaterAt(x, y, 'white'); // Walkable area
-                    }
-                }
-            }
-    
-            // Restore start and end positions
-            Controller.setStartPos(preset.startPos.x, preset.startPos.y);
-            Controller.setEndPos(preset.endPos.x, preset.endPos.y);
-    
-            Controller.bindEvents();
-            Controller.transition(); // Transition to 'ready' state
-        });
-    
-        alert('Preset loaded successfully!');
+       
+        window.location.reload()
     },
     
 
+    // Load Preset
+
+// Load Preset
+
+// Load Preset
+
+// Load Preset
+
+loadPreset: function () {
+    var self = this;
+
+    // Clear the existing grid and ensure there are no visual remains
+    if (self.grid) {
+        self.grid = null;
+        $('#draw_area').empty();
+    }
+
+    // Retrieve the preset from localStorage
+    var preset = JSON.parse(localStorage.getItem('myGridPreset'));
+
+    if (!preset) {
+        console.log('No preset found');
+        return;
+    }
+
+    console.log("Loaded grid preset:", preset);
+
+    // Reinitialize the grid with loaded data
+    self.gridSize = preset.gridSize;
+    self.grid = new PF.Grid(self.gridSize[0], self.gridSize[1]);
+
+    // Reinitialize the view (grid rendering)
+    View.init({
+        numCols: self.gridSize[0],
+        numRows: self.gridSize[1]
+    });
+
+    // Regenerate the grid visually
+    View.generateGrid(function () {
+        var gridData = preset.gridData;
+        for (var x = 0; x < self.gridSize[0]; x++) {
+            for (var y = 0; y < self.gridSize[1]; y++) {
+                var nodeData = gridData[x][y];
+                var node = self.grid.getNodeAt(x, y);
+
+                node.walkable = nodeData.walkable;
+                node.WL = nodeData.WL;
+                node.T = nodeData.T;
+
+                // Update the visual representation of the node
+                if (!node.walkable) {
+                    View.setAttributeAt(x, y, 'black', false);
+                } else if (node.WL === 1) {
+                    View.setWaterAt(x, y, 'green');
+                } else if (node.WL === 2) {
+                    View.setWaterAt(x, y, 'orange');
+                } else if (node.WL === 3) {
+                    View.setWaterAt(x, y, 'red');
+                } else {
+                    View.setAttributeAt(x, y, 'white', true);
+                }
+            }
+        }
+
+        // Forcefully add start and end nodes
+        self.setStartPos(preset.startPos.x, preset.startPos.y);
+        self.setEndPos(preset.endPos.x, preset.endPos.y);
+
+        // Directly add green for start and red for end
+        View.setStartPos(preset.startPos.x, preset.startPos.y);
+        View.setEndPos(preset.endPos.x, preset.endPos.y);
+
+        // Ensure the start and end nodes are brought to the front
+        setTimeout(function () {
+            if (View.startNode) {
+                View.startNode.toFront(); // Forcefully bring to the front
+            }
+            if (View.endNode) {
+                View.endNode.toFront(); // Forcefully bring to the front
+            }
+        }, 100); // Delayed to ensure grid is drawn first
+    });
+
+    // Bind events and transition to the ready state
+    self.bindEvents();
+    self.transition();
+
+    console.log('Preset loaded successfully and grid redrawn');
+},
+
+
+    
+    
+    
+    
 
 
 
+    
+    
+    
+    
+    
+ 
+    
+    
+    
+    
+    
+    
     // ------------------ PRESETS ------------------------------------------------ //
 
     clearAll: function () {
@@ -730,3 +773,4 @@ $(document).ready(function () {
         Controller.loadPreset(); // Load preset 1
     });
 });
+
