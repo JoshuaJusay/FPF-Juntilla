@@ -119,7 +119,7 @@ var View = {
                 callback();
             }
 
-            // Bring start and end nodes to the front after grid generation
+            // Forcefully bring the start and end nodes to the front after grid generation
             if (View.startNode) {
                 View.startNode.toFront();
             }
@@ -137,8 +137,7 @@ var View = {
                 coord[1],
                 this.nodeSize,
                 this.nodeSize
-            ).attr(this.nodeStyle.start)  // Apply start node style directly
-                .animate(this.nodeStyle.start, 1000);
+            ).attr(this.nodeStyle.start);  // Apply start node style
         } else {
             this.startNode.attr({ x: coord[0], y: coord[1] })
                 .attr(this.nodeStyle.start)
@@ -154,8 +153,7 @@ var View = {
                 coord[1],
                 this.nodeSize,
                 this.nodeSize
-            ).attr(this.nodeStyle.end)  // Apply end node style directly
-                .animate(this.nodeStyle.end, 1000);
+            ).attr(this.nodeStyle.end);  // Apply end node style
         } else {
             this.endNode.attr({ x: coord[0], y: coord[1] })
                 .attr(this.nodeStyle.end)
