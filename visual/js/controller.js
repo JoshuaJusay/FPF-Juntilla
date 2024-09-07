@@ -145,8 +145,8 @@ $.extend(Controller, {
                 var node = this.grid.getNodeAt(x, y);
                 gridData[x][y] = {
                     walkable: node.walkable,
-                    WL: node.WL,
-                    T: node.T
+                    WL: 0,
+                    T: 0
                 };
             }
         }
@@ -159,72 +159,80 @@ $.extend(Controller, {
             endPos: { x: this.endX, y: this.endY }         // Save end position
         };
 
-        // Save preset to localStorage
+        
+
+        console.log("Saving grid preset:", preset1);  // Log the saved data to the console
         localStorage.setItem('myGridPreset', JSON.stringify(preset1));
         alert('Preset saved successfully!');
-    },
+   },
 
     // Load Preset
-    loadPreset: function () {
-        // Clear existing grid
-        if (this.grid) {
-            this.grid = null;
-            $('#gridContainer').empty();
-        }
 
-        // Retrieve preset from localStorage
-        var preset = JSON.parse(localStorage.getItem('myGridPreset'));
+loadPreset: function () {
+    // Clear the existing grid and ensure there are no visual remains
+    if (this.grid) {
+        this.grid = null; // Remove current grid data
+        $('#draw_area').empty(); // Clear the draw area to remove the old grid
+    }
 
-        if (!preset) {
-            alert('No preset found');
-            return;
-        }
+    // Retrieve the preset from localStorage
+    var preset = JSON.parse(localStorage.getItem('myGridPreset'));
 
-        // Reinitialize grid with loaded data
-        this.gridSize = preset.gridSize;
-        this.grid = new PF.Grid(this.gridSize[0], this.gridSize[1]);
+    if (!preset) {
+        alert('No preset found');
+        return;
+    }
 
-        // Apply grid data
-        var gridData = preset.gridData;
-        for (var x = 0; x < this.gridSize[0]; x++) {
-            for (var y = 0; y < this.gridSize[1]; y++) {
-                var nodeData = gridData[x][y];
-                var node = this.grid.getNodeAt(x, y);
-                node.walkable = nodeData.walkable;
-                node.WL = nodeData.WL;
-                node.T = nodeData.T;
+    console.log("Loaded grid preset:", preset);  // Log the loaded data to the console
 
-                // Update visual representation of nodes (walls, water levels)
-                if (!node.walkable) {
-                    View.setWaterAt(x, y, 'black'); // Wall
-                } else if (node.WL === 1) {
-                    View.setWaterAt(x, y, 'green'); // Low water
-                } else if (node.WL === 2) {
-                    View.setWaterAt(x, y, 'orange'); // Moderate water
-                } else if (node.WL === 3) {
-                    View.setWaterAt(x, y, 'red'); // High water
-                } else {
-                    View.setWaterAt(x, y, 'white'); // Walkable area
-                }
+    // Reinitialize the grid with loaded data
+    this.gridSize = preset.gridSize;
+    this.grid = new PF.Grid(this.gridSize[0], this.gridSize[1]);
+
+    // Apply the grid data
+    var gridData = preset.gridData;
+    for (var x = 0; x < this.gridSize[0]; x++) {
+        for (var y = 0; y < this.gridSize[1]; y++) {
+            var nodeData = gridData[x][y];
+            var node = this.grid.getNodeAt(x, y);
+            node.walkable = nodeData.walkable;
+            node.WL = nodeData.WL;
+            node.T = nodeData.T;
+
+            // Update the visual representation of nodes (walls, water levels)
+            if (!node.walkable) {
+                View.setWaterAt(x, y, 'black'); // Wall
+            } else if (node.WL === 1) {
+                View.setWaterAt(x, y, 'green'); // Low water
+            } else if (node.WL === 2) {
+                View.setWaterAt(x, y, 'orange'); // Moderate water
+            } else if (node.WL === 3) {
+                View.setWaterAt(x, y, 'red'); // High water
+            } else {
+                View.setWaterAt(x, y, 'white'); // Walkable area
             }
         }
+    }
 
-        // Restore start and end positions
-        this.setStartPos(preset.startPos.x, preset.startPos.y);
-        this.setEndPos(preset.endPos.x, preset.endPos.y);
+    // Restore start and end positions
+    this.setStartPos(preset.startPos.x, preset.startPos.y);
+    this.setEndPos(preset.endPos.x, preset.endPos.y);
 
-        // Reinitialize the view
-        View.init({
-            numCols: this.gridSize[0],
-            numRows: this.gridSize[1]
-        });
-        View.generateGrid(function () {
-            Controller.bindEvents();
-            Controller.transition(); // Transition to 'ready' state
-        });
+    // Reinitialize the view (grid rendering) and rebind events
+    View.init({
+        numCols: this.gridSize[0],
+        numRows: this.gridSize[1]
+    });
 
-        alert('Preset loaded successfully!');
-    },
+    // Regenerate the grid without stacking it on top of the old one
+    View.generateGrid(function () {
+        Controller.bindEvents();
+        Controller.transition(); // Transition to 'ready' state
+    });
+
+    alert('Preset loaded successfully!');
+},
+
 
 
 
