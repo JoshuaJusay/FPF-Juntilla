@@ -133,3 +133,14 @@ footer {
     right: 20px;
     top: 400px;
 }
+
+#map_preset_panel {
+    width: 250px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed; /* Keep the panel fixed on the screen */
+    top: 580px; /* Adjust this as necessary to position above grid */
+    right: 20px; /* Align it to the right of the screen */
+
+}
+
+
