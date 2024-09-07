@@ -719,3 +719,14 @@ $.extend(Controller, {
     },
 });
 
+$(document).ready(function () {
+    // Bind save preset button
+    $('#save_preset1').on('click', function () {
+        Controller.mapPreset1(); // Save preset 1
+    });
+
+    // Bind load preset button
+    $('#load_preset1').on('click', function () {
+        Controller.loadPreset(); // Load preset 1
+    });
+});
