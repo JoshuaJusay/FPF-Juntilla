@@ -163,6 +163,15 @@ var View = {
         }
     },
 
+    setStart: function (gridX, gridY) {
+        var nodeStyle = this.nodeStyle;
+        this.colorizeNode(this.rects[gridY][gridX], nodeStyle.start.fill);
+    },
+    setEnd: function (gridX, gridY) {
+        var nodeStyle = this.nodeStyle;
+        this.colorizeNode(this.rects[gridY][gridX], nodeStyle.end.fill);
+    },
+
     setAttributeAt: function (gridX, gridY, attr, value) {
         var color, nodeStyle = this.nodeStyle;
         switch (attr) {
@@ -401,13 +410,13 @@ var View = {
         return coords;
     },
 
-    redrawStartEndNodes: function() {
+    redrawStartEndNodes: function () {
         // Bring start and end nodes to the front to ensure visibility
         if (this.startNode) {
             this.startNode.attr(this.nodeStyle.start);  // Reapply start node style
             this.startNode.toFront();  // Ensure it's visible on top of other nodes
         }
-        
+
         if (this.endNode) {
             this.endNode.attr(this.nodeStyle.end);  // Reapply end node style
             this.endNode.toFront();  // Ensure it's visible on top of other nodes
