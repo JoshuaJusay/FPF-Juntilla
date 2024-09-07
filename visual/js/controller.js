@@ -187,6 +187,10 @@ $.extend(Controller, {
     // Map Prepset #1
 
     loadPreset: function () {
+        if (this.grid){
+            this.grid = null; 
+            $('#gridContainer').empty();
+        }
         var preset = JSON.parse(localStorage.getItem('myGridPreset'));
 
         if (!preset) {
@@ -648,7 +652,18 @@ $.extend(Controller, {
     },
 
     isStartOrEndPos: function (gridX, gridY) {
-        return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY);
+        return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY); 
     },
 });
 
+$(document).ready(function () {
+    // Save preset 1
+    $('#save_preset1').on('click', function () {
+        Controller.mapPreset1();  // Correctly call the mapPreset1 function
+    });
+
+    // Load preset 1
+    $('#load_preset1').on('click', function () {
+        Controller.loadPreset();  // Correctly call the loadPreset function
+    });
+});
