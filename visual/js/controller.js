@@ -150,7 +150,20 @@ $.extend(Controller, {
 
         View.setAttributeAt(gridX, gridY, 'water', color);
     },
+    // Map Prepset #1
+    mapPreset1: function () {
+        const node1 = this.grid.getNodeAt(0, 0);
+        node.setWaterLevelAndTime(2, 3);
+        node.walkable = true;
 
+
+
+
+
+
+
+
+    },
     clearAll: function () {
         this.clearFootprints();
         View.clearBlockedNodes();
