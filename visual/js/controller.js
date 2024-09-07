@@ -98,9 +98,23 @@ var Controller = StateMachine.create({
 $.handleCellClick = function (gridX, gridY) {
     const node = this.grid.getNodeAt(gridX, gridY);
     if (node.walkable) {
-        const { WL, T } = Panel.getCurrentWaterLevelAndTime();
-        node.setWaterLevelAndTime(WL, T); // Update node's water level and time
-        View.setWaterAt(gridX, gridY, Panel.selectedColor); // Update the visual representation
+        const selectedColor = document.querySelector('input[name="cell_option"]:checked').value;
+
+        if (selectedColor === 'green') {
+            node.setWaterLevelAndTime(1, 3); // Green color: walkable, WL = 1, T = 3
+            node.walkable = true; // Ensure the node remains walkable
+        } else if (selectedColor === 'orange') {
+            node.setWaterLevelAndTime(2, 4); // Orange color: walkable, WL = 2, T = 4
+            node.walkable = true; // Ensure the node remains walkable
+        } else if (selectedColor === 'red') {
+            node.setWaterLevelAndTime(3, 5); // Red color: walkable, WL = 3, T = 5
+            node.walkable = true; // Ensure the node remains walkable
+        } else {
+            node.walkable = false;
+            node.setWaterLevelAndTime(0, 0); // Reset WL and T for other colors
+        }
+
+        View.setWaterAt(gridX, gridY, selectedColor); // Update the visual representation
     }
 };
 
@@ -134,41 +148,79 @@ $.extend(Controller, {
     setWaterAt: function (gridX, gridY, color) {
         const node = this.grid.getNodeAt(gridX, gridY);
 
-        if (color === 'green') {
-            node.setWaterLevelAndTime(2, 3); // Green color: walkable, WL = 1, T = 3
-            node.walkable = true; // Ensure the node remains walkable
-        } else if (color === 'orange') {
-            node.setWaterLevelAndTime(3, 3); // Orange color: walkable, WL = 2, T = 4
-            node.walkable = true; // Ensure the node remains walkable
-        } else if (color === 'red') {
-            node.setWaterLevelAndTime(4, 4); // Red color: walkable, WL = 3, T = 5
-            node.walkable = true; // Ensure the node remains walkable
-        } else {
-            node.walkable = false;
-            node.setWaterLevelAndTime(0, 0); // Reset WL and T for other colors
-        }
+
 
         View.setAttributeAt(gridX, gridY, 'water', color);
     },
-    // Map Prepset #1
 
+
+    // ------------------ PRESETS ------------------------------------------------ //
 
     mapPreset1: function () {
-        const node1 = this.grid.getNodeAt(0, 0);
-        node1.setWaterLevelAndTime(2, 3);
-        node1.walkable = true;
 
-        const node2 = this.grid.getNodeAt(50, 50);
-        node2.setWaterLevelAndTime(2, 3);
-        node2.walkable = true;
+        var numCols = this.gridSize[0],
+            numRows = this.gridSize[1],
+            gridData = [];
 
+        for (var x = 0; x < numCols; x++) {
+            gridData[x] = [];
+            for (var y = 0; y < numRows; y++) {
+                var node = this.grid.getNodeAt(x, y);
+                gridData[x][y] = {
+                    walkable: node.walkable,
+                    WL: node.WL,
+                    T: node.T
+                };
+            }
+        }
 
+        var preset1 = {
+            gridSize: this.gridSize,
+            gridData: gridData
+        };
 
-
-
-
+        // Save the preset (e.g., in local storage)
+        localStorage.setItem('myGridPreset', JSON.stringify(preset1));
 
     },
+
+    // Map Prepset #1
+
+    loadPreset: function () {
+        var preset = JSON.parse(localStorage.getItem('myGridPreset'));
+
+        if (!preset) {
+            console.error('No preset found');
+            return;
+        }
+
+        this.gridSize = preset.gridSize;
+        this.grid = new PF.Grid(this.gridSize[0], this.gridSize[1]);
+
+        var gridData = preset.gridData;
+        for (var x = 0; x < this.gridSize[0]; x++) {
+            for (var y = 0; y < this.gridSize[1]; y++) {
+                var nodeData = gridData[x][y];
+                var node = this.grid.getNodeAt(x, y);
+                node.walkable = nodeData.walkable;
+                node.WL = nodeData.WL;
+                node.T = nodeData.T;
+            }
+        }
+
+        View.init({
+            numCols: this.gridSize[0],
+            numRows: this.gridSize[1]
+        });
+        View.generateGrid(function () {
+            Controller.setDefaultStartEndPos();
+            Controller.bindEvents();
+            Controller.transition(); // transit to the next state (ready)
+        });
+    },
+
+    // ------------------ PRESETS ------------------------------------------------ //
+
     clearAll: function () {
         this.clearFootprints();
         View.clearBlockedNodes();
