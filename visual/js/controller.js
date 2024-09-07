@@ -151,11 +151,16 @@ $.extend(Controller, {
         View.setAttributeAt(gridX, gridY, 'water', color);
     },
     // Map Prepset #1
+
+
     mapPreset1: function () {
         const node1 = this.grid.getNodeAt(0, 0);
-        node.setWaterLevelAndTime(2, 3);
-        node.walkable = true;
+        node1.setWaterLevelAndTime(2, 3);
+        node1.walkable = true;
 
+        const node2 = this.grid.getNodeAt(50, 50);
+        node2.setWaterLevelAndTime(2, 3);
+        node2.walkable = true;
 
 
 
