@@ -159,9 +159,21 @@ var View = {
                 color = value ? nodeStyle.normal.fill : nodeStyle.blocked.fill;
                 this.setWalkableAt(gridX, gridY, value);
                 break;
-            case 'water':
-                color = value ? nodeStyle.normal.fill : nodeStyle.water.fill;
-                this.setWaterAt(gridX, gridY, value);
+            case 'black':
+                color = value ? nodeStyle.normal.fill : nodeStyle.blocked.fill;
+                this.setWalkableAt(gridX, gridY, value);
+                break;
+            case 'green':
+                this.colorizeNode(this.rects[gridY][gridX], nodeStyle.waterLow.fill);
+                this.setWaterAt(gridX, gridY, true);
+                break;
+            case 'orange':
+                this.colorizeNode(this.rects[gridY][gridX], nodeStyle.waterModerate.fill);
+                this.setWaterAt(gridX, gridY, true);
+                break;
+            case 'red':
+                this.colorizeNode(this.rects[gridY][gridX], nodeStyle.waterHigh.fill);
+                this.setWaterAt(gridX, gridY, true);
                 break;
             case 'opened':
                 this.colorizeNode(this.rects[gridY][gridX], nodeStyle.opened.fill);

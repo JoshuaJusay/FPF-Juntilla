@@ -178,23 +178,7 @@ $.extend(Controller, {
     ondrawWall: function (event, from, to, gridX, gridY) {
         const selectedColor = document.querySelector('input[name="cell_option"]:checked').value;
 
-
-        switch (selectedColor) {
-            case 'black':
-                this.setWalkableAt(gridX, gridY, false, 0, 0, "black");
-                break;
-            case 'green':
-                this.setWalkableAt(gridX, gridY, true, 1, 2, "green");
-                break;
-            case 'orange':
-                this.setWalkableAt(gridX, gridY, true, 2, 3, "orange");
-                break;
-            case 'red':
-                this.setWalkableAt(gridX, gridY, true, 3, 4, "red");
-                break;
-        }
-
-
+        this.setWalkableAt(gridX, gridY, false);
     },
 
     oneraseWall: function (event, from, to, gridX, gridY) {
@@ -476,6 +460,7 @@ $.extend(Controller, {
         if (this.isStartOrEndPos(gridX, gridY)) {
             return;
         }
+
         if (this.can('dragStart') && this.isStartPos(gridX, gridY)) {
             this.dragStart();
             return;
@@ -493,6 +478,25 @@ $.extend(Controller, {
         }
 
 
+        switch (Panel.selectedColor) {
+            case 'black':
+                if (this.can('drawWall') && grid.isWalkableAt(gridX, gridY)) {
+                    this.drawWall(gridX, gridY);
+                }
+                break;
+            case 'green':
+            case 'orange':
+            case 'red':
+                if (this.can('drawWater') && grid.isWalkableAt(gridX, gridY)) {
+                    this.drawWater(gridX, gridY);
+                }
+                break;
+            case 'white':
+                if (this.can('eraseWall') && !grid.isWalkableAt(gridX, gridY)) {
+                    this.eraseWall(gridX, gridY);
+                }
+                break;
+        }
     },
 
     mousemove: function (event) {
@@ -517,23 +521,7 @@ $.extend(Controller, {
                 }
                 break;
             case 'drawingWall':
-                const selectedColor = document.querySelector('input[name="cell_option"]:checked').value;
-
-                switch (selectedColor) {
-                    case 'black':
-                        this.setWalkableAt(gridX, gridY, false, 0, 0, "black");
-                        break;
-                    case 'green':
-                        this.setWalkableAt(gridX, gridY, true, 1, 2, "green");
-                        break;
-                    case 'orange':
-                        this.setWalkableAt(gridX, gridY, true, 2, 3, "orange");
-                        break;
-                    case 'red':
-                        this.setWalkableAt(gridX, gridY, true, 3, 4, "red");
-                        break;
-                }
-
+                this.setWalkableAt(gridX, gridY, false);
                 break;
             case 'erasingWall':
                 this.setWalkableAt(gridX, gridY, true);
