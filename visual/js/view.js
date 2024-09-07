@@ -129,6 +129,7 @@ var View = {
         });
     },
 
+
     setStartPos: function (gridX, gridY) {
         var coord = this.toPageCoordinate(gridX, gridY);
         if (!this.startNode) {
@@ -165,10 +166,12 @@ var View = {
         var nodeStyle = this.nodeStyle;
         this.colorizeNode(this.rects[gridY][gridX], nodeStyle.start.fill);
     },
+
     setEnd: function (gridX, gridY) {
         var nodeStyle = this.nodeStyle;
         this.colorizeNode(this.rects[gridY][gridX], nodeStyle.end.fill);
     },
+
 
     setAttributeAt: function (gridX, gridY, attr, value) {
         var color, nodeStyle = this.nodeStyle;
@@ -212,6 +215,8 @@ var View = {
                 break;
         }
     },
+
+
 
     colorizeNode: function (node, color) {
         node.animate({
