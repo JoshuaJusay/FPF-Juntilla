@@ -7,94 +7,25 @@
 var Controller = StateMachine.create({
     initial: 'none',
     events: [
-        {
-            name: 'init',
-            from: 'none',
-            to: 'ready'
-        },
-        {
-            name: 'search',
-            from: 'starting',
-            to: 'searching'
-        },
-        {
-            name: 'pause',
-            from: 'searching',
-            to: 'paused'
-        },
-        {
-            name: 'finish',
-            from: 'searching',
-            to: 'finished'
-        },
-        {
-            name: 'resume',
-            from: 'paused',
-            to: 'searching'
-        },
-        {
-            name: 'cancel',
-            from: 'paused',
-            to: 'ready'
-        },
-        {
-            name: 'modify',
-            from: 'finished',
-            to: 'modified'
-        },
-        {
-            name: 'reset',
-            from: '*',
-            to: 'ready'
-        },
-        {
-            name: 'clear',
-            from: ['finished', 'modified'],
-            to: 'ready'
-        },
-        {
-            name: 'start',
-            from: ['ready', 'modified', 'restarting'],
-            to: 'starting'
-        },
-        {
-            name: 'restart',
-            from: ['searching', 'finished'],
-            to: 'restarting'
-        },
-        {
-            name: 'dragStart',
-            from: ['ready', 'finished'],
-            to: 'draggingStart'
-        },
-        {
-            name: 'dragEnd',
-            from: ['ready', 'finished'],
-            to: 'draggingEnd'
-        },
-        {
-            name: 'drawWall',
-            from: ['ready', 'finished'],
-            to: 'drawingWall'
-        },
-        {
-            name: 'eraseWall',
-            from: ['ready', 'finished'],
-            to: 'erasingWall'
-        },
-        {
-            name: 'drawWater',
-            from: ['ready', 'finished'],
-            to: 'drawingWater'
-        },
-        {
-            name: 'rest',
-            from: ['draggingStart', 'draggingEnd', 'drawingWall', 'erasingWall', 'drawingWater'],
-            to: 'ready'
-        },
-    ],
+        { name: 'init', from: 'none', to: 'ready' },
+        { name: 'search', from: 'starting', to: 'searching' },
+        { name: 'pause', from: 'searching', to: 'paused' },
+        { name: 'finish', from: 'searching', to: 'finished' },
+        { name: 'resume', from: 'paused', to: 'searching' },
+        { name: 'cancel', from: 'paused', to: 'ready' },
+        { name: 'modify', from: 'finished', to: 'modified' },
+        { name: 'reset', from: '*', to: 'ready' },
+        { name: 'clear', from: ['finished', 'modified'], to: 'ready' },
+        { name: 'start', from: ['ready', 'modified', 'restarting'], to: 'starting' },
+        { name: 'restart', from: ['searching', 'finished'], to: 'restarting' },
+        { name: 'dragStart', from: ['ready', 'finished'], to: 'draggingStart' },
+        { name: 'dragEnd', from: ['ready', 'finished'], to: 'draggingEnd' },
+        { name: 'drawWall', from: ['ready', 'finished'], to: 'drawingWall' },
+        { name: 'eraseWall', from: ['ready', 'finished'], to: 'erasingWall' },
+        { name: 'drawWater', from: ['ready', 'finished'], to: 'drawingWater' },
+        { name: 'rest', from: ['draggingStart', 'draggingEnd', 'drawingWall', 'erasingWall', 'drawingWater'], to: 'ready' }
+    ]
 });
-
 
 $.extend(Controller, {
     gridSize: [50, 50], // number of nodes horizontally and vertically
@@ -117,7 +48,6 @@ $.extend(Controller, {
         });
 
         this.$buttons = $('.control_button');
-
         this.hookPathFinding();
 
         return StateMachine.ASYNC;
@@ -127,22 +57,21 @@ $.extend(Controller, {
         var node = this.grid.getNodeAt(gridX, gridY);
 
         if (color == 'green') {
-            node.setWaterLevelAndTime(2, 3); // Green color: walkable, WL = 1, T = 3
-            node.walkable = true; // Ensure the node remains walkable
+            node.setWaterLevelAndTime(2, 3);
+            node.walkable = true;
         } else if (color == 'orange') {
-            node.setWaterLevelAndTime(3, 3); // Orange color: walkable, WL = 2, T = 4
-            node.walkable = true; // Ensure the node remains walkable
+            node.setWaterLevelAndTime(3, 3);
+            node.walkable = true;
         } else if (color == 'red') {
-            node.setWaterLevelAndTime(4, 4); // Red color: walkable, WL = 3, T = 5
-            node.walkable = true; // Ensure the node remains walkable
+            node.setWaterLevelAndTime(4, 4);
+            node.walkable = true;
         } else {
             node.walkable = false;
-            node.setWaterLevelAndTime(0, 0); // Reset WL and T for other colors
+            node.setWaterLevelAndTime(0, 0);
         }
 
         View.setAttributeAt(gridX, gridY, 'water', color);
     },
-
 
     // ------------------ PRESETS ------------------------------------------------ //
 
@@ -151,56 +80,52 @@ $.extend(Controller, {
             numRows = this.gridSize[1],
             gridData = [];
 
-        // Collect grid data (walkability, WL, T, color for each node)
         for (var x = 0; x < numCols; x++) {
             gridData[x] = [];
             for (var y = 0; y < numRows; y++) {
                 var node = this.grid.getNodeAt(x, y);
-                var rectColor = View.rects[y][x].attr("fill"); // Assuming you use SVG and fill attribute for color
+                var rectColor = View.rects[y][x].attr("fill");
 
                 gridData[x][y] = {
                     walkable: node.walkable,
                     WL: node.WL,
                     T: node.T,
-                    color: rectColor  // Save the color of the node
+                    color: rectColor
                 };
             }
         }
 
-        // Save preset including grid data and start/end positions
         var preset1 = {
             gridSize: this.gridSize,
             gridData: gridData,
-            startPos: { x: this.startX, y: this.startY }, // Save start position
-            endPos: { x: this.endX, y: this.endY }        // Save end position
+            startPos: { x: this.startX, y: this.startY },
+            endPos: { x: this.endX, y: this.endY }
         };
 
-        console.log("Saving grid preset:", preset1);  // Log the saved data to the console
-        localStorage.setItem('myGridPreset', JSON.stringify(preset1));
+        console.log("Saving grid preset:", preset1);
 
+        var presetName = 'myGridPreset';
+        localStorage.setItem(presetName, JSON.stringify(preset1));
 
-        window.location.reload()
+        var jsonData = JSON.stringify(preset1, null, 4);
+        var blob = new Blob([jsonData], { type: 'application/json' });
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'gridPreset.json';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     },
-
-
-    // Load Preset
-
-    // Load Preset
-
-    // Load Preset
-
-    // Load Preset
 
     loadPreset: function () {
         var self = this;
 
-        // Clear the existing grid and ensure there are no visual remains
         if (self.grid) {
             self.grid = null;
             $('#draw_area').empty();
         }
 
-        // Retrieve the preset from localStorage
         var preset = JSON.parse(localStorage.getItem('myGridPreset'));
 
         if (!preset) {
@@ -210,21 +135,16 @@ $.extend(Controller, {
 
         console.log("Loaded grid preset:", preset);
 
-        // Reinitialize the grid with loaded data
         self.gridSize = preset.gridSize;
         self.grid = new PF.Grid(self.gridSize[0], self.gridSize[1]);
 
-        // Reinitialize the view (grid rendering)
         View.init({
             numCols: self.gridSize[0],
             numRows: self.gridSize[1]
         });
 
-        // Regenerate the grid visually
         View.generateGrid(function () {
             var gridData = preset.gridData;
-
-
 
             for (var x = 0; x < self.gridSize[0]; x++) {
                 for (var y = 0; y < self.gridSize[1]; y++) {
@@ -235,6 +155,127 @@ $.extend(Controller, {
                     node.WL = nodeData.WL;
                     node.T = nodeData.T;
 
+                    if (!node.walkable) {
+                        View.setAttributeAt(x, y, 'black', false);
+                    } else if (node.WL === 1) {
+                        View.setWaterAt(x, y, 'green');
+                    } else if (node.WL === 2) {
+                        View.setWaterAt(x, y, 'orange');
+                    } else if (node.WL === 3) {
+                        View.setWaterAt(x, y, 'red');
+                    } else {
+                        View.setAttributeAt(x, y, 'white', true);
+                    }
+                }
+            }
+
+            self.setStartPos(preset.startPos.x, preset.startPos.y);
+            self.setEndPos(preset.endPos.x, preset.endPos.y);
+        });
+
+        console.log('Preset loaded successfully and grid redrawn');
+    },
+
+    savePreset: function (presetName) {
+        var presetList = JSON.parse(localStorage.getItem('presetList')) || [];
+
+        if (!presetList.includes(presetName)) {
+            presetList.push(presetName);
+            localStorage.setItem('presetList', JSON.stringify(presetList));
+        }
+
+        var numCols = this.gridSize[0],
+            numRows = this.gridSize[1],
+            gridData = [];
+
+        for (var x = 0; x < numCols; x++) {
+            gridData[x] = [];
+            for (var y = 0; y < numRows; y++) {
+                var node = this.grid.getNodeAt(x, y);
+                var rectColor = View.rects[y][x].attr("fill");
+
+                gridData[x][y] = {
+                    walkable: node.walkable,
+                    WL: node.WL,
+                    T: node.T,
+                    color: rectColor
+                };
+            }
+        }
+
+        var preset = {
+            gridSize: this.gridSize,
+            gridData: gridData,
+            startPos: { x: this.startX, y: this.startY },
+            endPos: { x: this.endX, y: this.endY }
+        };
+
+        localStorage.setItem(presetName, JSON.stringify(preset));
+        alert('Preset saved as ' + presetName);
+    },
+
+    listPresets: function () {
+        var presetList = JSON.parse(localStorage.getItem('presetList')) || [];
+        var presetContainer = $('#preset_list');
+        presetContainer.empty();
+
+        if (presetList.length === 0) {
+            presetContainer.append('<p>No presets saved yet.</p>');
+        } else {
+            presetList.forEach(function (presetName) {
+                var button = $('<button>')
+                    .text('Load ' + presetName)
+                    .addClass('preset_button')
+                    .click(function () {
+                        Controller.loadPresetByName(presetName);
+                    });
+                presetContainer.append(button);
+            });
+        }
+    },
+
+    loadPresetByName: function (presetName) {
+        var self = this;
+    
+        // Clear the existing grid and ensure there are no visual remains
+        if (self.grid) {
+            self.grid = null;
+            $('#draw_area').empty();
+        }
+    
+        // Retrieve the preset from localStorage
+        var preset = JSON.parse(localStorage.getItem(presetName));
+    
+        if (!preset) {
+            console.log('No preset found with name:', presetName);
+            return;
+        }
+    
+        console.log("Loaded grid preset:", preset);
+    
+        // Reinitialize the grid with loaded data
+        self.gridSize = preset.gridSize;
+        self.grid = new PF.Grid(self.gridSize[0], self.gridSize[1]);
+    
+        // Reinitialize the view (grid rendering)
+        View.init({
+            numCols: self.gridSize[0],
+            numRows: self.gridSize[1]
+        });
+    
+        // Regenerate the grid visually
+        View.generateGrid(function () {
+            var gridData = preset.gridData;
+    
+            for (var x = 0; x < self.gridSize[0]; x++) {
+                for (var y = 0; y < self.gridSize[1]; y++) {
+                    var nodeData = gridData[x][y];
+                    var node = self.grid.getNodeAt(x, y);
+    
+                    node.walkable = nodeData.walkable;
+                    node.WL = nodeData.WL;
+                    node.T = nodeData.T;
+    
                     // Update the visual representation of the node
                     if (!node.walkable) {
                         View.setAttributeAt(x, y, 'black', false);
@@ -247,42 +288,24 @@ $.extend(Controller, {
                     } else {
                         View.setAttributeAt(x, y, 'white', true);
                     }
-
-                    View.setStart(2, 48);
-                    View.setEnd(48, 2);
-
                 }
             }
-
-
+    
+            // Set start and end nodes with specific colors
+            View.setStart(self.startX, self.startY, 'green'); // Green for start
+            View.setEnd(self.endX, self.endY, 'red');         // Red for end
+    
+            // Immediately bring the start and end nodes to the front
+            if (View.startNode) {
+                View.startNode.toFront(); // Bring start node to the front
+            }
+            if (View.endNode) {
+                View.endNode.toFront();   // Bring end node to the front
+            }
         });
-
-
-
-        console.log('Preset loaded successfully and grid redrawn');
+    
     },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // ------------------ PRESETS ------------------------------------------------ //
+    
 
     clearAll: function () {
         this.clearFootprints();
@@ -293,10 +316,8 @@ $.extend(Controller, {
 
         for (var y = 0; y < numRows; y++) {
             for (var x = 0; x < numCols; x++) {
-                // Skip resetting the start and end nodes
                 if (this.isStartOrEndPos(x, y)) continue;
 
-                // Reset only the colored nodes (red, orange, green) back to white
                 var currentFill = View.rects[y][x].attr("fill");
                 if (currentFill === View.nodeStyle.waterHigh.fill ||
                     currentFill === View.nodeStyle.waterModerate.fill ||
@@ -310,7 +331,6 @@ $.extend(Controller, {
 
     ondrawWall: function (event, from, to, gridX, gridY) {
         const selectedColor = document.querySelector('input[name="cell_option"]:checked').value;
-
 
         switch (selectedColor) {
             case 'black':
@@ -326,8 +346,6 @@ $.extend(Controller, {
                 this.setWalkableAt(gridX, gridY, true, 3, 4, "red");
                 break;
         }
-
-
     },
 
     oneraseWall: function (event, from, to, gridX, gridY) {
@@ -337,7 +355,7 @@ $.extend(Controller, {
     ondrawWater: function (event, from, to, gridX, gridY) {
         const node = this.grid.getNodeAt(gridX, gridY);
         const { WL, T } = Panel.getCurrentWaterLevelAndTime();
-        node.setWaterLevelAndTime(WL, T); // Update node's water level and time
+        node.setWaterLevelAndTime(WL, T);
         View.setWaterAt(gridX, gridY, Panel.selectedColor);
     },
 
@@ -391,10 +409,10 @@ $.extend(Controller, {
     onclear: function (event, from, to) {
         this.clearOperations();
         this.clearFootprints();
-        this.clearAll(); // Ensure this is called
+        this.clearAll();
     },
 
-    onmodify: function (event, from, to) {
+    onmodified: function (event, from, to) {
         // Modify event handler
     },
 
@@ -420,7 +438,7 @@ $.extend(Controller, {
             id: 3,
             text: 'Clear Walls',
             enabled: true,
-            callback: $.proxy(this.reset, this), // Bind reset logic to the Clear Walls button
+            callback: $.proxy(this.reset, this),
         });
     },
 
@@ -581,10 +599,8 @@ $.extend(Controller, {
 
         for (var y = 0; y < numRows; y++) {
             for (var x = 0; x < numCols; x++) {
-                // Skip resetting the start and end nodes
                 if (this.isStartOrEndPos(x, y)) continue;
 
-                // Reset only the colored nodes (red, orange, green) back to white
                 var currentFill = View.rects[y][x].attr("fill");
                 if (currentFill === View.nodeStyle.waterHigh.fill ||
                     currentFill === View.nodeStyle.waterModerate.fill ||
@@ -624,8 +640,6 @@ $.extend(Controller, {
         if (this.can('eraseWall') && !grid.isWalkableAt(gridX, gridY)) {
             this.eraseWall(gridX, gridY);
         }
-
-
     },
 
     mousemove: function (event) {
@@ -748,18 +762,18 @@ $.extend(Controller, {
 
     isStartOrEndPos: function (gridX, gridY) {
         return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY);
-    },
+    }
 });
 
 $(document).ready(function () {
-    // Bind save preset button
     $('#save_preset1').on('click', function () {
-        Controller.mapPreset1(); // Save preset 1
+        var presetName = prompt("Enter a name for the preset:");
+        if (presetName) {
+            Controller.savePreset(presetName);
+        }
     });
 
-    // Bind load preset button
-    $('#load_preset1').on('click', function () {
-        Controller.loadPreset(); // Load preset 1
+    $('#list_presets').on('click', function () {
+        Controller.listPresets();
     });
 });
-
