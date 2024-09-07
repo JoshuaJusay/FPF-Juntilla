@@ -48,19 +48,6 @@ h1, h2, h3, h4, h5, h6 {
     width: 550px;
 }
 
-#hide_instructions {
-    position: absolute;
-    right: 25px;
-    top: 10px;
-    font-size: 90%;
-    cursor: pointer;
-}
-
-#hide_instruction:hover {
-    color: #fff;
-    text-decoration: underline;
-}
-
 .option_header {
     font-size: 80%;
     margin-left: 20px;
@@ -99,8 +86,8 @@ button:hover {
 
 #stats {
     position: fixed;
-    bottom: 100px;
-    right: 20px;
+    bottom: 750px;
+    right:350px;
     color: #0a0;
     font-size: 250%;
     padding: 5px;
@@ -143,7 +130,6 @@ footer {
 }
 
 #cell_option_panel {
-    bottom: 280px;
     right: 20px;
-    width: 250px;
+    top: 400px;
 }
