@@ -1,3 +1,4 @@
+
 /**
  * A node in the grid.
  * This class holds some basic information about a node and custom 
@@ -25,7 +26,7 @@ function Node(x, y, walkable = true, WL = 0, T = 0) {
  * @param {number} newWL - New water level at the node.
  * @param {number} newT - New time at the node.
  */
-Node.prototype.setWaterLevelAndTime = function(newWL, newT) {
+Node.prototype.setWaterLevelAndTime = function (newWL, newT) {
     this.WL = newWL;
     this.T = newT;
     this.updateWalkability(); // Recalculate walkability after updating WL and T

@@ -42,7 +42,7 @@ var View = {
             'stroke-opacity': 0.2,
         },
         tested: {
-            fill: '#e5e5e5',
+            fill: 'none',
             'stroke-opacity': 0.2,
         },
     },
