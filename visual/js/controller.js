@@ -95,29 +95,6 @@ var Controller = StateMachine.create({
     ],
 });
 
-$.handleCellClick = function (gridX, gridY) {
-    const node = this.grid.getNodeAt(gridX, gridY);
-    if (node.walkable) {
-        const selectedColor = document.querySelector('input[name="cell_option"]:checked').value;
-
-        if (selectedColor === 'green') {
-            node.setWaterLevelAndTime(1, 3); // Green color: walkable, WL = 1, T = 3
-            node.walkable = true; // Ensure the node remains walkable
-        } else if (selectedColor === 'orange') {
-            node.setWaterLevelAndTime(2, 4); // Orange color: walkable, WL = 2, T = 4
-            node.walkable = true; // Ensure the node remains walkable
-        } else if (selectedColor === 'red') {
-            node.setWaterLevelAndTime(3, 5); // Red color: walkable, WL = 3, T = 5
-            node.walkable = true; // Ensure the node remains walkable
-        } else {
-            node.walkable = false;
-            node.setWaterLevelAndTime(0, 0); // Reset WL and T for other colors
-        }
-
-        View.setWaterAt(gridX, gridY, selectedColor); // Update the visual representation
-    }
-};
-
 $.extend(Controller, {
     gridSize: [50, 50], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
@@ -157,11 +134,11 @@ $.extend(Controller, {
     // ------------------ PRESETS ------------------------------------------------ //
 
     mapPreset1: function () {
-
         var numCols = this.gridSize[0],
             numRows = this.gridSize[1],
             gridData = [];
 
+        // Collect grid data (walkability, WL, T for each node)
         for (var x = 0; x < numCols; x++) {
             gridData[x] = [];
             for (var y = 0; y < numRows; y++) {
@@ -174,33 +151,40 @@ $.extend(Controller, {
             }
         }
 
+        // Save preset including grid data and start/end positions
         var preset1 = {
             gridSize: this.gridSize,
-            gridData: gridData
+            gridData: gridData,
+            startPos: { x: this.startX, y: this.startY }, // Save start position
+            endPos: { x: this.endX, y: this.endY }         // Save end position
         };
 
-        // Save the preset (e.g., in local storage)
+        // Save preset to localStorage
         localStorage.setItem('myGridPreset', JSON.stringify(preset1));
-
+        alert('Preset saved successfully!');
     },
 
-    // Map Prepset #1
-
+    // Load Preset
     loadPreset: function () {
-        if (this.grid){
-            this.grid = null; 
+        // Clear existing grid
+        if (this.grid) {
+            this.grid = null;
             $('#gridContainer').empty();
         }
+
+        // Retrieve preset from localStorage
         var preset = JSON.parse(localStorage.getItem('myGridPreset'));
 
         if (!preset) {
-            console.error('No preset found');
+            alert('No preset found');
             return;
         }
 
+        // Reinitialize grid with loaded data
         this.gridSize = preset.gridSize;
         this.grid = new PF.Grid(this.gridSize[0], this.gridSize[1]);
 
+        // Apply grid data
         var gridData = preset.gridData;
         for (var x = 0; x < this.gridSize[0]; x++) {
             for (var y = 0; y < this.gridSize[1]; y++) {
@@ -209,19 +193,40 @@ $.extend(Controller, {
                 node.walkable = nodeData.walkable;
                 node.WL = nodeData.WL;
                 node.T = nodeData.T;
+
+                // Update visual representation of nodes (walls, water levels)
+                if (!node.walkable) {
+                    View.setWaterAt(x, y, 'black'); // Wall
+                } else if (node.WL === 1) {
+                    View.setWaterAt(x, y, 'green'); // Low water
+                } else if (node.WL === 2) {
+                    View.setWaterAt(x, y, 'orange'); // Moderate water
+                } else if (node.WL === 3) {
+                    View.setWaterAt(x, y, 'red'); // High water
+                } else {
+                    View.setWaterAt(x, y, 'white'); // Walkable area
+                }
             }
         }
 
+        // Restore start and end positions
+        this.setStartPos(preset.startPos.x, preset.startPos.y);
+        this.setEndPos(preset.endPos.x, preset.endPos.y);
+
+        // Reinitialize the view
         View.init({
             numCols: this.gridSize[0],
             numRows: this.gridSize[1]
         });
         View.generateGrid(function () {
-            Controller.setDefaultStartEndPos();
             Controller.bindEvents();
-            Controller.transition(); // transit to the next state (ready)
+            Controller.transition(); // Transition to 'ready' state
         });
+
+        alert('Preset loaded successfully!');
     },
+
+
 
     // ------------------ PRESETS ------------------------------------------------ //
 
