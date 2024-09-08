@@ -217,22 +217,62 @@ $.extend(Controller, {
     listPresets: function () {
         var presetList = JSON.parse(localStorage.getItem('presetList')) || [];
         var presetContainer = $('#preset_list');
-        presetContainer.empty();
-
+        presetContainer.empty();  // Clear the list container before adding new entries
+    
         if (presetList.length === 0) {
             presetContainer.append('<p>No presets saved yet.</p>');
         } else {
             presetList.forEach(function (presetName) {
-                var button = $('<button>')
+                var presetItem = $('<div>').addClass('preset-item');
+    
+                // Create a button to load the preset
+                var loadButton = $('<button>')
                     .text('Load ' + presetName)
                     .addClass('preset_button')
                     .click(function () {
-                        Controller.loadPresetByName(presetName);
+                        Controller.loadPresetByName(presetName);  // Load the preset when clicked
                     });
-                presetContainer.append(button);
+    
+                // Create a delete button to delete the preset
+                var deleteButton = $('<button>')
+                    .text('Delete')
+                    .addClass('delete_button')
+                    .click(function () {
+                        Controller.deletePreset(presetName, presetItem);  // Delete the preset when clicked
+                    });
+    
+                // Append both load and delete buttons to the container
+                presetItem.append(loadButton).append(deleteButton);
+                presetContainer.append(presetItem);
             });
         }
     },
+    
+
+    deletePreset: function (presetName, presetItem) {
+        // Confirm the deletion
+        if (!confirm('Are you sure you want to delete the preset "' + presetName + '"?')) {
+            return; // If the user cancels the deletion, stop here
+        }
+    
+        // Remove the preset from localStorage
+        localStorage.removeItem(presetName);
+    
+        // Update the preset list in localStorage
+        var presetList = JSON.parse(localStorage.getItem('presetList')) || [];
+        var updatedPresetList = presetList.filter(function (name) {
+            return name !== presetName; // Keep all other preset names
+        });
+    
+        // Save the updated preset list back to localStorage
+        localStorage.setItem('presetList', JSON.stringify(updatedPresetList));
+    
+        // Remove the preset button from the UI
+        presetItem.remove();
+    
+        alert('Preset "' + presetName + '" deleted successfully.');
+    },
+    
 
     loadPresetByName: function (presetName) {
         var self = this;
@@ -722,7 +762,7 @@ $.extend(Controller, {
     },
 
     setDefaultStartEndPos: function () {
-        this.setStartPos(2, 48);
+        this.setStartPos(2, 47);
         this.setEndPos(48, 2);
     },
 
