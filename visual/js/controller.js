@@ -239,6 +239,9 @@ $.extend(Controller, {
                     .addClass('delete_button')
                     .click(function () {
                         Controller.deletePreset(presetName, presetItem);  // Delete the preset when clicked
+                        setTimeout(function() {
+                            location.reload(); // This will refresh the page after the specified delay
+                        }, 1000); // 3000 milliseconds = 3 seconds delay
                     });
     
                 // Append both load and delete buttons to the container
@@ -592,6 +595,7 @@ $.extend(Controller, {
         $(window)
             .mousemove($.proxy(this.mousemove, this))
             .mouseup($.proxy(this.mouseup, this));
+            
     },
 
     loop: function () {
@@ -810,6 +814,9 @@ $(document).ready(function () {
         var presetName = prompt("Enter a name for the preset:");
         if (presetName) {
             Controller.savePreset(presetName);
+            setTimeout(function() {
+                location.reload(); // This will refresh the page after the specified delay
+            }, 1000); // 3000 milliseconds = 3 seconds delay
         }
     });
 

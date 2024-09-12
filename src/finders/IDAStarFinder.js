@@ -18,14 +18,19 @@ function IDAStarFinder(opt) {
     this.weight = opt.weight || 1;
     this.trackRecursion = opt.trackRecursion || false;
     this.timeLimit = opt.timeLimit || Infinity; // Default: no time limit.
+    this.heuristic = options.heuristic || PF.Heuristic.manhattan;
 
     // Choose heuristic based on the user's choice or default to 'manhattan'
-    if (opt.heuristicType === 'enhancedheuristic') {
-        this.heuristic = Heuristic.enhancedheuristic;
-    } else {
-        this.heuristic = Heuristic.manhattan;  // Default heuristic
-    }
+ //   if (opt.heuristicType === 'enhancedheuristic') {
+     //   this.heuristic = Heuristic.enhancedheuristic;
+   // } else {
+     //   this.heuristic = Heuristic.manhattan;  // Default heuristic
+    //}
 }
+
+IDAStarFinder.prototype.setHeuristic = function(heuristic) {
+    this.heuristic = heuristic;
+};
 
 /**
  * Find and return the path. When an empty array is returned, either
@@ -113,8 +118,7 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
 
         cutOff = t;
     }
-
-    return [];
+    
 };
 
 module.exports = IDAStarFinder;
