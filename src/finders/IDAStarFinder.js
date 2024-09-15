@@ -1,6 +1,5 @@
-var Util       = require('../core/Util');
-var Heuristic  = require('../core/Heuristic');
 var Node       = require('../core/Node');
+var Util       = require('../core/Util');
 
 /**
  * Iterative Deeping A Star (IDA*) path-finder.
@@ -11,26 +10,15 @@ var Node       = require('../core/Node');
  * @param {integer} opt.weight Weight to apply to the heuristic to allow for suboptimal paths, in order to speed up the search.
  * @param {object} opt.trackRecursion Whether to track recursion for statistical purposes.
  * @param {object} opt.timeLimit Maximum execution time. Use <= 0 for infinite.
- * @param {string} [opt.heuristicType] Type of heuristic to use (optional).
  */
 function IDAStarFinder(opt) {
     opt = opt || {};
     this.weight = opt.weight || 1;
     this.trackRecursion = opt.trackRecursion || false;
     this.timeLimit = opt.timeLimit || Infinity; // Default: no time limit.
-    this.heuristic = options.heuristic || PF.Heuristic.manhattan;
+    this.heuristic = PF.Heuristic.enhancedheuristic || PF.Heuristic.manhattan;
 
-    // Choose heuristic based on the user's choice or default to 'manhattan'
- //   if (opt.heuristicType === 'enhancedheuristic') {
-     //   this.heuristic = Heuristic.enhancedheuristic;
-   // } else {
-     //   this.heuristic = Heuristic.manhattan;  // Default heuristic
-    //}
 }
-
-IDAStarFinder.prototype.setHeuristic = function(heuristic) {
-    this.heuristic = heuristic;
-};
 
 /**
  * Find and return the path. When an empty array is returned, either

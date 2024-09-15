@@ -52,19 +52,22 @@ var Panel = {
         // Add event listener for heuristic options
         document.getElementById('ida_heuristic').addEventListener('change', function(event) {
             if (event.target.name === 'ida_heuristic') {
-                console.log("Selected heuristic:", event.target.value);
+                const finder = Panel.getFinder();  // Get the current IDAStarFinder instance
+                if (!finder) {
+                    console.error("Finder is not defined.");
+                    return;
+                }
         
-                // Recreate the finder based on the selected heuristic
+        
+                // Change the heuristic based on user selection
                 if (event.target.value === 'manhattan') {
                     Panel.finder = new PF.IDAStarFinder({
                         heuristic: PF.Heuristic.manhattan,
-                        timeLimit: -1 // Example time limit, adjust if needed
                     });
                     console.log("Manhattan heuristic is now set.");
-                } else if (event.target.value === 'enhanced') {
+                } else if (event.target.value === 'enhancedheuristic') {
                     Panel.finder = new PF.IDAStarFinder({
                         heuristic: PF.Heuristic.enhancedheuristic,
-                        timeLimit: -1 // Example time limit, adjust if needed
                     });
                     console.log("Enhanced heuristic is now set.");
                 } else {
@@ -72,6 +75,8 @@ var Panel = {
                 }
             }
         });
+        
+        
         
     },
 
@@ -83,40 +88,50 @@ var Panel = {
         };
     },
 
-    /**
-     * Get the user selected path-finder.
-     * TODO: clean up this messy code.
-     */
+   
     getFinder: function () {
-        var finder, selected_header, heuristic, allowDiagonal, biDirectional, dontCrossCorners, weight, trackRecursion, timeLimit;
-
+        var finder, selected_header, heuristic, weight, trackRecursion, timeLimit;
+    
         selected_header = $(
             '#algorithm_panel ' +
             '.ui-accordion-header[aria-selected=true]'
         ).attr('id');
-
+    
         switch (selected_header) {
-
             case 'ida_header':
                 trackRecursion = typeof $('#ida_section ' +
                     '.track_recursion:checked').val() !== 'undefined';
-
-                heuristic = $('input[name=ida_heuristic]:checked').val();
-
+    
+                heuristic = $('input[name=ida_heuristic]:checked').val(); // should return 
+                // Add this log to verify the exact heuristic value selected from the UI
+                console.log("Selected heuristic from UI:", heuristic);
+    
                 timeLimit = parseInt($('#ida_section input[name=time_limit]').val());
-
+    
                 // Any non-negative integer, indicates "forever".
                 timeLimit = (timeLimit <= 0 || isNaN(timeLimit)) ? -1 : timeLimit;
-
+    
+                // Add extra debug log to check if the heuristic exists in PF.Heuristic
+                if (PF.Heuristic[heuristic]) {
+                    console.log("Heuristic found in PF.Heuristic:", heuristic);
+                } else {
+                    console.log("Heuristic not found, defaulting to manhattan.");
+                }
+    
                 finder = new PF.IDAStarFinder({
                     timeLimit: timeLimit,
                     trackRecursion: trackRecursion,
-                    heuristic: PF.Heuristic[heuristic] || PF.Heuristic.manhattan,
+                    heuristic: PF.Heuristic[heuristic] || PF.Heuristic.manhattan,  // Initially assign heuristic
                 });
-
+    
+                // Explicitly set the heuristic again to ensure it's correct
+                finder.heuristic = PF.Heuristic[heuristic] || PF.Heuristic.manhattan;
+                console.log("Updated heuristic:", finder.heuristic.name);  // Verify it's set correctly
+    
                 break;
         }
-
+    
         return finder;
     }
+    
 };
