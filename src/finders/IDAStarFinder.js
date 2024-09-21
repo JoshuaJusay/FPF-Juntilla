@@ -1,5 +1,6 @@
 var Node = require('../core/Node');
-var Util = require('../core/Util');
+
+
 
 /**
  * Iterative Deeping A Star (IDA*) path-finder.
@@ -16,10 +17,11 @@ function IDAStarFinder(opt) {
     this.weight = opt.weight || 1;
     this.trackRecursion = opt.trackRecursion || false;
     this.timeLimit = opt.timeLimit || Infinity; // Default: no time limit.
-    this.heuristic = opt.heuristic || function(dx, dy) {
-        return dx + dy;  // Manhattan distance by default
+    this.heuristic = opt.heuristic || function(dx, dy,) { 
+        return dx + dy; // Default to Manhattan distance
     };
 }
+
 
 /**
  * Find and return the path. When an empty array is returned, either
@@ -32,6 +34,12 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
     var startTime = new Date().getTime();
     var maxDepth = 1000; // Prevents too deep recursion
 
+    var start = grid.getNodeAt(startX, startY);
+    var end = grid.getNodeAt(endX, endY);
+
+    console.log("Starting search from: ", start);
+    console.log("Goal node: ", end);
+
     // Handle dynamic heuristic
     var h = function(a, b) {
         return this.heuristic(Math.abs(b.x - a.x), Math.abs(b.y - a.y));
@@ -39,26 +47,24 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
 
     var search = function(node, g, cutoff, route, depth) {
         nodesVisited++;
+        
+        console.log("Visiting node: ", node, " with f-score: ", g + h(node, end) * this.weight);
 
         if (depth > maxDepth) {
             console.error("Recursion depth exceeded");
             return Infinity;
         }
 
-        // Check for time limit
         if (this.timeLimit > 0 && new Date().getTime() - startTime > this.timeLimit * 1000) {
             return Infinity;
         }
 
-        // Calculate the f-score
         var f = g + h(node, end) * this.weight;
 
-        // Check if f exceeds the cutoff
         if (f > cutoff) {
             return f;
         }
 
-        // If we reach the end node, return the node
         if (node === end) {
             route[depth] = [node.x, node.y];
             return node;
@@ -70,7 +76,6 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
         for (var k = 0; k < neighbours.length; ++k) {
             var neighbour = neighbours[k];
 
-            // Ensure neighbour is not already processed
             if (neighbour.tested) continue;
 
             if (this.trackRecursion) {
@@ -80,16 +85,13 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
                 }
             }
 
-            // Call search recursively
             var t = search(neighbour, g + cost(node, neighbour), cutoff, route, depth + 1);
 
-            // If t is a valid path (instance of Node), return it
             if (t instanceof Node) {
                 route[depth] = [node.x, node.y];
                 return t;
             }
 
-            // Reset the tested property if recursion tracking is enabled
             if (this.trackRecursion && (--neighbour.retainCount) === 0) {
                 neighbour.tested = false;
             }
@@ -99,12 +101,8 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
             }
         }
 
-        // If no valid path found, return the minimum cutoff for next iteration
         return min;
     }.bind(this);
-
-    var start = grid.getNodeAt(startX, startY);
-    var end = grid.getNodeAt(endX, endY);
 
     var cutOff = h(start, end);
 
@@ -123,5 +121,6 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
         cutOff = t;
     }
 };
+
 
 module.exports = IDAStarFinder;

@@ -9,7 +9,7 @@ module.exports = {
      * @param {number} dy - Difference in y.
      * @return {number} dx + dy
      */
-    manhattan: function (dx, dy,) {
+    manhattan: function (dx, dy) {
         return dx + dy;
     },
     
@@ -19,17 +19,20 @@ module.exports = {
      * @param {number} dy - Difference in y.
      * @param {number} WL - Water level at node n.
      * @param {number} T - Time at node n.
-     * @param {number} w1 - Weight for the Manhattan distance heuristic.
-     * @param {number} w2 - Weight for the safest-route heuristic.
+     * @param {number} w1 - Weight for the Manhattan distance heuristic (default 0.5).
+     * @param {number} w2 - Weight for the safest-route heuristic (default 0.5).
      * @return {number} Weighted combination of Manhattan distance and safest-route heuristic.
      */
-    
-    enhancedheuristic: function(t, e, WL, T, w1, w2) {
-        var manhattan = t + e;
-        var safest = WL < 4 ? Math.abs(WL * T) : 0;  // Avoid Infinity, default to 0
-        return manhattan * w1 + safest * w2;
-    }
+    enhancedheuristic: function(dx, dy, WL, T, w1 = 0.5, w2 = 0.5) {
+        // Calculate Manhattan distance
+        var manhattan = dx + dy;
 
+        // Calculate safest-route value
+        var safest = WL < 4 ? Math.abs(WL * T) : 0;  // Avoid Infinity, default to 0
+
+        // Return weighted combination of Manhattan and safest-route heuristics
+        return (manhattan * w1) + (safest * w2);
+    }
 };
 
 //Added Safest-route Heuristic - subject to changes/temporary (19/8)

@@ -1,5 +1,5 @@
 const Node = require('./Node');
-var DiagonalMovement = require('./DiagonalMovement');
+
 
 console.log('Checkpoint 1: Starting execution');
 console.log('Node class being used:', Node);
