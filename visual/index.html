@@ -44,62 +44,94 @@
           <h3>Heuristic</h3>
         </header>
         <div id="ida_heuristic" class="sub_options">
-          <input type="radio" name="ida_heuristic" value="manhattan" checked />
+          <input type="radio" name="ida_heuristic" value="manhattan" id="manhattan_heuristic" checked />
           <label class="option_label">Manhattan</label> <br>
-          <input type="radio" name="ida_heuristic" value="enhancedheuristic" />
-          <label class="option_label">Weighted Manhattan and Safest-Route</label> <br>
+          <input type="radio" name="ida_heuristic" value="enhancedheuristic" id="enhanced_heuristic" />
+          <label class="option_label">Weighted Manhattan and Safest-Route</label> <br> <br>
         </div>
-        <header class="option_header">
-          <h3>Option</h3>
-        </header>
-        <div class="optional sub_options">
-          <!--<input class="spinner" name="time_limit" value="10">
-          <label class="option_label">Seconds limit</label> <br> -->
-          <input type="checkbox" class="track_recursion" />
-          <label class="option_label">Visualize recursion</label> <br>
+
+        <div id="weights_section" style="display: none;"> <!-- Initially hidden -->
+          <header class="option_header">
+            <h3>Manhattan:Safest-Route Weights</h3>
+          </header>
+          <div class="optional sub_options">
+            <input type="radio" name="Water_Option" value="4" />
+            <label class="option_label">30:70</label> <br>
+            <input type="radio" name="Water_Option" value="3" />
+            <label class="option_label">50:50</label> <br>
+            <input type="radio" name="Water_Option" value="2" />
+            <label class="option_label">70:30</label> <br>
+            <input type="radio" name="Water_Option" value="1" />
+            <label class="option_label">0:100</label> <br>
+          </div>
         </div>
       </div>
-    </div><!-- .accordion -->
-  </div><!-- #algorithm_panel -->
-
-  <div id="play_panel" class="panel right_panel">
-    <button id="button1" class="control_button">Start Search</button>
-    <button id="button2" class="control_button">Pause Search</button>
-    <button id="button3" class="control_button">Clear Walls</button>
-
-  </div>
-
-
-
-  <div id="cell_option_panel" class="panel right_panel below_play_panel">
-    <header class="option_header">
-      <h3>CELL OPTIONS</h3>
-    </header>
-    <div id="cell_option_controls" class="sub_options">
-      <input type="radio" name="cell_option" value="black" checked />
-      <label class="option_label">Wall (Black)</label> <br>
-      <input type="radio" name="cell_option" value="white" />
-      <label class="option_label">No Water (White)</label> <br>
-      <input type="radio" name="cell_option" value="green" />
-      <label class="option_label">Low Water (Green)</label> <br>
-      <input type="radio" name="cell_option" value="orange" />
-      <label class="option_label">Moderate Water (Orange)</label> <br>
-      <input type="radio" name="cell_option" value="red" />
-      <label class="option_label">High Water (Red)</label> <br>
     </div>
-  </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var enhancedHeuristicRadio = document.getElementById('enhanced_heuristic');
+        var manhattanHeuristicRadio = document.getElementById('manhattan_heuristic');
+        var weightsSection = document.getElementById('weights_section');
+
+        // Function to toggle the visibility of the weights section
+        function toggleWeightsSection() {
+          if (enhancedHeuristicRadio.checked) {
+            weightsSection.style.display = 'block';  // Show weights section
+          } else {
+            weightsSection.style.display = 'none';   // Hide weights section
+          }
+        }
+
+        // Add event listeners to both radio buttons
+        enhancedHeuristicRadio.addEventListener('change', toggleWeightsSection);
+        manhattanHeuristicRadio.addEventListener('change', toggleWeightsSection);
+
+        // Call the function initially to ensure the correct section is shown/hidden on page load
+        toggleWeightsSection();
+      });
+    </script>
 
 
-  <div id="map_preset_panel" class="panel right_panel">
-    <header class="option_header">
+    <div id="play_panel" class="panel right_panel">
+      <button id="button1" class="control_button">Start Search</button>
+      <button id="button2" class="control_button">Pause Search</button>
+      <button id="button3" class="control_button">Clear Walls</button>
+
+    </div>
+
+
+
+    <div id="cell_option_panel" class="panel right_panel below_play_panel">
+      <header class="option_header">
+        <h3>CELL OPTIONS</h3>
+      </header>
+      <div id="cell_option_controls" class="sub_options">
+        <input type="radio" name="cell_option" value="black" checked />
+        <label class="option_label">Wall (Black)</label> <br>
+        <input type="radio" name="cell_option" value="white" />
+        <label class="option_label">No Water (White)</label> <br>
+        <input type="radio" name="cell_option" value="green" />
+        <label class="option_label">Low Water (Green)</label> <br>
+        <input type="radio" name="cell_option" value="orange" />
+        <label class="option_label">Moderate Water (Orange)</label> <br>
+        <input type="radio" name="cell_option" value="red" />
+        <label class="option_label">High Water (Red)</label> <br>
+      </div>
+
+    </div>
+
+
+    <div id="map_preset_panel" class="panel right_panel">
+      <header class="option_header">
         <h3>MAP PRESETS</h3>
-    </header>
-    <div id="map_preset_controls" class="sub_options">
+      </header>
+      <div id="map_preset_controls" class="sub_options">
         <button id="save_preset1" class="save_button">Save Preset 1</button><br>
         <button id="list_presets" class="preset_button">List Presets</button><br>
         <div id="preset_list"></div> <!-- Container to display the list of presets -->
+      </div>
     </div>
-</div>
 
 
 

@@ -73,6 +73,27 @@ $.extend(Controller, {
         View.setAttributeAt(gridX, gridY, 'water', color);
     },
 
+    setWalkableByWL: function (Level) {
+        var numCols = this.gridSize[0];
+        var numRows = this.gridSize[1];
+
+        // Iterate through every node in the grid
+        for (var x = 0; x < numCols; x++) {
+            for (var y = 0; y < numRows; y++) {
+                var node = this.grid.getNodeAt(x, y);
+
+
+                if (node.WL >= Level || node.WL == 0) {
+                    node.walkable = false;
+
+                } else {
+                    node.walkable = true;
+
+                }
+            }
+        }
+    },
+
     // ------------------ PRESETS ------------------------------------------------ //
 
     mapPreset1: function () {
@@ -157,11 +178,11 @@ $.extend(Controller, {
 
                     if (!node.walkable) {
                         View.setAttributeAt(x, y, 'black', false);
-                    } else if (node.WL === 1) {
-                        View.setWaterAt(x, y, 'green');
                     } else if (node.WL === 2) {
-                        View.setWaterAt(x, y, 'orange');
+                        View.setWaterAt(x, y, 'green');
                     } else if (node.WL === 3) {
+                        View.setWaterAt(x, y, 'orange');
+                    } else if (node.WL === 4) {
                         View.setWaterAt(x, y, 'red');
                     } else {
                         View.setAttributeAt(x, y, 'white', true);
@@ -218,13 +239,13 @@ $.extend(Controller, {
         var presetList = JSON.parse(localStorage.getItem('presetList')) || [];
         var presetContainer = $('#preset_list');
         presetContainer.empty();  // Clear the list container before adding new entries
-    
+
         if (presetList.length === 0) {
             presetContainer.append('<p>No presets saved yet.</p>');
         } else {
             presetList.forEach(function (presetName) {
                 var presetItem = $('<div>').addClass('preset-item');
-    
+
                 // Create a button to load the preset
                 var loadButton = $('<button>')
                     .text('Load ' + presetName)
@@ -232,93 +253,93 @@ $.extend(Controller, {
                     .click(function () {
                         Controller.loadPresetByName(presetName);  // Load the preset when clicked
                     });
-    
+
                 // Create a delete button to delete the preset
                 var deleteButton = $('<button>')
                     .text('Delete')
                     .addClass('delete_button')
                     .click(function () {
                         Controller.deletePreset(presetName, presetItem);  // Delete the preset when clicked
-                        setTimeout(function() {
+                        setTimeout(function () {
                             location.reload(); // This will refresh the page after the specified delay
                         }, 1000); // 3000 milliseconds = 3 seconds delay
                     });
-    
+
                 // Append both load and delete buttons to the container
                 presetItem.append(loadButton).append(deleteButton);
                 presetContainer.append(presetItem);
             });
         }
     },
-    
+
 
     deletePreset: function (presetName, presetItem) {
         // Confirm the deletion
         if (!confirm('Are you sure you want to delete the preset "' + presetName + '"?')) {
             return; // If the user cancels the deletion, stop here
         }
-    
+
         // Remove the preset from localStorage
         localStorage.removeItem(presetName);
-    
+
         // Update the preset list in localStorage
         var presetList = JSON.parse(localStorage.getItem('presetList')) || [];
         var updatedPresetList = presetList.filter(function (name) {
             return name !== presetName; // Keep all other preset names
         });
-    
+
         // Save the updated preset list back to localStorage
         localStorage.setItem('presetList', JSON.stringify(updatedPresetList));
-    
+
         // Remove the preset button from the UI
         presetItem.remove();
-    
+
         alert('Preset "' + presetName + '" deleted successfully.');
     },
-    
+
 
     loadPresetByName: function (presetName) {
         var self = this;
-    
+
         // Clear the existing grid and ensure there are no visual remains
         if (self.grid) {
             self.grid = null;
             $('#draw_area').empty();
         }
-    
+
         // Retrieve the preset from localStorage
         var preset = JSON.parse(localStorage.getItem(presetName));
-    
+
         if (!preset) {
             console.log('No preset found with name:', presetName);
             return;
         }
-    
+
         console.log("Loaded grid preset:", preset);
-    
+
         // Reinitialize the grid with loaded data
         self.gridSize = preset.gridSize;
         self.grid = new PF.Grid(self.gridSize[0], self.gridSize[1]);
-    
+
         // Reinitialize the view (grid rendering)
         View.init({
             numCols: self.gridSize[0],
             numRows: self.gridSize[1]
         });
-    
+
         // Regenerate the grid visually
         View.generateGrid(function () {
             var gridData = preset.gridData;
-    
+
             for (var x = 0; x < self.gridSize[0]; x++) {
                 for (var y = 0; y < self.gridSize[1]; y++) {
                     var nodeData = gridData[x][y];
                     var node = self.grid.getNodeAt(x, y);
-    
+
                     node.walkable = nodeData.walkable;
                     node.WL = nodeData.WL;
                     node.T = nodeData.T;
-    
+
                     // Update the visual representation of the node
                     if (!node.walkable) {
                         View.setAttributeAt(x, y, 'black', false);
@@ -333,11 +354,11 @@ $.extend(Controller, {
                     }
                 }
             }
-    
+
             // Set start and end nodes with specific colors
             View.setStart(self.startX, self.startY, 'green'); // Green for start
             View.setEnd(self.endX, self.endY, 'red');         // Red for end
-    
+
             // Immediately bring the start and end nodes to the front
             if (View.startNode) {
                 View.startNode.toFront(); // Bring start node to the front
@@ -346,9 +367,9 @@ $.extend(Controller, {
                 View.endNode.toFront();   // Bring end node to the front
             }
         });
-    
+
     },
-    
+
 
     clearAll: function () {
         this.clearFootprints();
@@ -380,13 +401,13 @@ $.extend(Controller, {
                 this.setWalkableAt(gridX, gridY, false, 0, 0, "black");
                 break;
             case 'green':
-                this.setWalkableAt(gridX, gridY, true, 1, 2, "green");
+                this.setWalkableAt(gridX, gridY, true, 2, 3, "green");
                 break;
             case 'orange':
-                this.setWalkableAt(gridX, gridY, true, 2, 3, "orange");
+                this.setWalkableAt(gridX, gridY, true, 3, 4, "orange");
                 break;
             case 'red':
-                this.setWalkableAt(gridX, gridY, true, 3, 4, "red");
+                this.setWalkableAt(gridX, gridY, true, 4, 5, "red");
                 break;
         }
     },
@@ -403,6 +424,30 @@ $.extend(Controller, {
     },
 
     onsearch: function (event, from, to) {
+
+        // Check if Water_Option and ida_heuristic are correctly selected
+        const selected = document.querySelector('input[name="Water_Option"]:checked');
+        const selected2 = document.querySelector('input[name="ida_heuristic"]:checked');
+
+        // Debugging logs to ensure elements are found
+        console.log("Selected Water Option: ", selected ? selected.value : "Not Found");
+        console.log("Selected Heuristic Option: ", selected2 ? selected2.value : "Not Found");
+
+        // Proceed only if both are found
+        if (selected && selected2) {
+            if (selected2.value == "enhancedheuristic") {
+                // Log and set walkability based on the selected water option
+                console.log("Using Enhanced Heuristic with Water Option: ", selected.value);
+                this.setWalkableByWL(selected.value);
+            } else {
+                // Log and set a default walkability value if not using enhanced heuristic
+                console.log("Using Default Heuristic");
+                this.setWalkableByWL(5);
+            }
+        } else {
+            console.error("Could not find the selected heuristic or water option");
+        }
+
         var grid,
             timeStart, timeEnd,
             finder = Panel.getFinder();
@@ -595,7 +640,7 @@ $.extend(Controller, {
         $(window)
             .mousemove($.proxy(this.mousemove, this))
             .mouseup($.proxy(this.mouseup, this));
-            
+
     },
 
     loop: function () {
@@ -715,16 +760,16 @@ $.extend(Controller, {
                         this.setWalkableAt(gridX, gridY, false, 0, 0, "black");
                         break;
                     case 'white':
-                        this.setWalkableAt(gridX, gridY, true, 0, 0, "white");
+                        this.setWalkableAt(gridX, gridY, true, 1, 1, "white");
                         break;
                     case 'green':
-                        this.setWalkableAt(gridX, gridY, true, 1, 2, "green");
+                        this.setWalkableAt(gridX, gridY, true, 2, 3, "green");
                         break;
                     case 'orange':
-                        this.setWalkableAt(gridX, gridY, true, 2, 3, "orange");
+                        this.setWalkableAt(gridX, gridY, true, 3, 4, "orange");
                         break;
                     case 'red':
-                        this.setWalkableAt(gridX, gridY, true, 3, 4, "red");
+                        this.setWalkableAt(gridX, gridY, true, 4, 5, "red");
                         break;
                 }
 
@@ -807,6 +852,12 @@ $.extend(Controller, {
     isStartOrEndPos: function (gridX, gridY) {
         return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY);
     }
+
+
+
+
+
+
 });
 
 $(document).ready(function () {
@@ -814,7 +865,7 @@ $(document).ready(function () {
         var presetName = prompt("Enter a name for the preset:");
         if (presetName) {
             Controller.savePreset(presetName);
-            setTimeout(function() {
+            setTimeout(function () {
                 location.reload(); // This will refresh the page after the specified delay
             }, 1000); // 3000 milliseconds = 3 seconds delay
         }
