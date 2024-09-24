@@ -343,11 +343,11 @@ $.extend(Controller, {
                     // Update the visual representation of the node
                     if (!node.walkable) {
                         View.setAttributeAt(x, y, 'black', false);
-                    } else if (node.WL === 1) {
-                        View.setWaterAt(x, y, 'green');
                     } else if (node.WL === 2) {
-                        View.setWaterAt(x, y, 'orange');
+                        View.setWaterAt(x, y, 'green');
                     } else if (node.WL === 3) {
+                        View.setWaterAt(x, y, 'orange');
+                    } else if (node.WL === 4) {
                         View.setWaterAt(x, y, 'red');
                     } else {
                         View.setAttributeAt(x, y, 'white', true);
