@@ -87,7 +87,7 @@ var Panel = {
 
         heuristic = $('input[name=ida_heuristics]:checked').val() || 'manhattan';
 
-        weight = parseInt($('#ida_section input[name=astar_weight]').val()) || 1;
+        weight = parseInt($('#ida_section input[name=astar_weight]').val()) || 3;
         weight = weight >= 1 ? weight : 1; /* if negative or 0, use 1 */
 
         timeLimit = 10;

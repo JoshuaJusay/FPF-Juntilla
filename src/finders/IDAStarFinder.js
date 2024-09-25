@@ -14,7 +14,7 @@ var Node = require('../core/Node');
  */
 function IDAStarFinder(opt) {
     opt = opt || {};
-    this.weight = opt.weight || 1;
+    this.weight = opt.weight || 3;
     this.trackRecursion = opt.trackRecursion || true;
     this.timeLimit = opt.timeLimit || 10; // Default: no time limit.
 
