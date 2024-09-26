@@ -105,13 +105,11 @@ $.extend(Controller, {
             gridData[x] = [];
             for (var y = 0; y < numRows; y++) {
                 var node = this.grid.getNodeAt(x, y);
-                var rectColor = View.rects[y][x].attr("fill");
 
                 gridData[x][y] = {
                     walkable: node.walkable,
                     WL: node.WL,
-                    T: node.T,
-                    color: rectColor
+                    T: node.T
                 };
             }
         }
@@ -213,13 +211,13 @@ $.extend(Controller, {
             gridData[x] = [];
             for (var y = 0; y < numRows; y++) {
                 var node = this.grid.getNodeAt(x, y);
-                var rectColor = View.rects[y][x].attr("fill");
+                
 
                 gridData[x][y] = {
                     walkable: node.walkable,
                     WL: node.WL,
                     T: node.T,
-                    color: rectColor
+               
                 };
             }
         }
