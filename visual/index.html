@@ -126,11 +126,30 @@
       </header>
       <div id="map_preset_controls" class="sub_options">
         <button id="save_preset1" class="save_button">Save Preset 1</button><br>
-        <button id="list_presets" class="preset_button">List Presets</button><br>
-        <div id="preset_list"></div> <!-- Container to display the list of presets -->
+        <button id="load_preset">Load Preset from File</button>
+        <input type="file" id="loadPresetFile" style="display: none;" />
       </div>
     </div>
 
+    <div id="legend_panel" class="panel right_panel">
+      <header class="option_header">
+        <h3>LEGEND</h3>
+      </header>
+      <div class="sub_options">
+        <div style="display: flex; align-items: center;">
+          <div style="width: 20px; height: 20px; background-color: rgb(53, 236, 53); margin-right: 10px; border: 1px solid black;"></div>
+          <span>Green Node:<br> Water level 0.1m - 0.5m</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-top: 5px;">
+          <div style="width: 20px; height: 20px; background-color: orange; margin-right: 10px; border: 1px solid black;"></div>
+          <span>Orange Node:<br> Water level 0.6m - 1.5m</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-top: 5px;">
+          <div style="width: 20px; height: 20px; background-color: red; margin-right: 10px; border: 1px solid black;"></div>
+          <span>Red Node:<br> Water level > 1.5m</span>
+        </div>
+      </div>
+    </div>
 
 
     <div id="stats"></div>

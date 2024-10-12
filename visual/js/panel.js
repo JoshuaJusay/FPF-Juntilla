@@ -9,7 +9,6 @@ var Panel = {
     init: function () {
         var $algo = $('#algorithm_panel');
 
-        $('.panel').draggable();
         $('.accordion').accordion({
             collapsible: false,
         });
