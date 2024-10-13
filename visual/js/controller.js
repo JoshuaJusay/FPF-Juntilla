@@ -27,74 +27,6 @@ var Controller = StateMachine.create({
     ]
 });
 
-async function savePresetToFile(presetName, presetData) {
-    try {
-        const options = {
-            types: [
-                {
-                    description: 'JSON Files',
-                    accept: {
-                        'application/json': ['.json'],
-                    },
-                },
-            ],
-        };
-        const fileHandle = await window.showSaveFilePicker({
-            suggestedName: `${presetName}.json`,
-            ...options,
-        });
-
-        const writable = await fileHandle.createWritable();
-        await writable.write(JSON.stringify(presetData, null, 2));
-        await writable.close();
-
-        alert('Preset saved successfully!');
-    } catch (error) {
-        console.error('Error saving preset:', error);
-        alert('Failed to save preset');
-    }
-}
-
-
-// Attach the event listener to the file input
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('loadPresetFile').addEventListener('change', loadPresetFromFile);
-});
-
-$(document).ready(function () {
-    // When the load button is clicked, trigger the file input
-    $('#load_preset').on('click', function () {
-        $('#loadPresetFile').click();
-    });
-
-    // Handle the selected file for loading a preset
-    $('#loadPresetFile').on('change', loadPresetFromFile);
-});
-
-// Function to handle the loading of a preset file (as defined previously)
-async function loadPresetFromFile(event) {
-    const file = event.target.files[0];
-    if (!file) {
-        alert('No file selected');
-        return;
-    }
-
-    try {
-        const fileContent = await file.text();
-        const preset = JSON.parse(fileContent);
-
-        // Call loadPresetData directly to load the preset
-        Controller.loadPresetData(preset);
-
-    } catch (error) {
-        console.error('Error loading preset:', error);
-        alert('Failed to load preset');
-    }
-}
-
-
-
-
 $.extend(Controller, {
     gridSize: [50, 50], // number of nodes horizontally and vertically
     operationsPerSecond: 300,
@@ -162,74 +94,88 @@ $.extend(Controller, {
         }
     },
 
-
-
     // ------------------ PRESETS ------------------------------------------------ //
 
-
-    savePreset: function (presetName) {
+    mapPreset1: function () {
         var numCols = this.gridSize[0],
             numRows = this.gridSize[1],
             gridData = [];
-    
+
         for (var x = 0; x < numCols; x++) {
             gridData[x] = [];
             for (var y = 0; y < numRows; y++) {
                 var node = this.grid.getNodeAt(x, y);
+                var rectColor = View.rects[y][x].attr("fill");
+
                 gridData[x][y] = {
                     walkable: node.walkable,
                     WL: node.WL,
                     T: node.T,
+                    color: rectColor
                 };
             }
         }
-    
-        var preset = {
+
+        var preset1 = {
             gridSize: this.gridSize,
             gridData: gridData,
             startPos: { x: this.startX, y: this.startY },
             endPos: { x: this.endX, y: this.endY }
         };
-    
-        // Use the File System Access API to save the preset to a file
-        savePresetToFile(presetName, preset);
-    },
-    
 
-    loadPresetData: function (preset) {
+        console.log("Saving grid preset:", preset1);
+
+        var presetName = 'myGridPreset';
+        localStorage.setItem(presetName, JSON.stringify(preset1));
+
+        var jsonData = JSON.stringify(preset1, null, 4);
+        var blob = new Blob([jsonData], { type: 'application/json' });
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'gridPreset.json';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    },
+
+    loadPreset: function () {
         var self = this;
 
-        if (!preset) {
-            console.error('Invalid preset data');
-            return;
-        }
-    
-        // Clear existing grid if it exists
         if (self.grid) {
             self.grid = null;
             $('#draw_area').empty();
         }
-    
+
+        var preset = JSON.parse(localStorage.getItem('myGridPreset'));
+
+        if (!preset) {
+            console.log('No preset found');
+            return;
+        }
+
+        console.log("Loaded grid preset:", preset);
+
         self.gridSize = preset.gridSize;
         self.grid = new PF.Grid(self.gridSize[0], self.gridSize[1]);
-    
+
         View.init({
             numCols: self.gridSize[0],
             numRows: self.gridSize[1]
         });
-    
+
         View.generateGrid(function () {
             var gridData = preset.gridData;
-    
+
             for (var x = 0; x < self.gridSize[0]; x++) {
                 for (var y = 0; y < self.gridSize[1]; y++) {
                     var nodeData = gridData[x][y];
                     var node = self.grid.getNodeAt(x, y);
-    
+
                     node.walkable = nodeData.walkable;
                     node.WL = nodeData.WL;
                     node.T = nodeData.T;
-    
+
                     if (!node.walkable) {
                         View.setAttributeAt(x, y, 'black', false);
                     } else if (node.WL === 2) {
@@ -243,17 +189,186 @@ $.extend(Controller, {
                     }
                 }
             }
-    
-            View.setStart(self.startX, self.startY); 
-            View.setEnd(self.endX, self.endY);         
+
+            self.setStartPos(preset.startPos.x, preset.startPos.y);
+            self.setEndPos(preset.endPos.x, preset.endPos.y);
         });
-    
-      
+
+        console.log('Preset loaded successfully and grid redrawn');
     },
 
-    
-    
+    savePreset: function (presetName) {
+        var presetList = JSON.parse(localStorage.getItem('presetList')) || [];
 
+        if (!presetList.includes(presetName)) {
+            presetList.push(presetName);
+            localStorage.setItem('presetList', JSON.stringify(presetList));
+        }
+
+        var numCols = this.gridSize[0],
+            numRows = this.gridSize[1],
+            gridData = [];
+
+        for (var x = 0; x < numCols; x++) {
+            gridData[x] = [];
+            for (var y = 0; y < numRows; y++) {
+                var node = this.grid.getNodeAt(x, y);
+                var rectColor = View.rects[y][x].attr("fill");
+
+                gridData[x][y] = {
+                    walkable: node.walkable,
+                    WL: node.WL,
+                    T: node.T,
+                    color: rectColor
+                };
+            }
+        }
+
+        var preset = {
+            gridSize: this.gridSize,
+            gridData: gridData,
+            startPos: { x: this.startX, y: this.startY },
+            endPos: { x: this.endX, y: this.endY }
+        };
+
+        localStorage.setItem(presetName, JSON.stringify(preset));
+        alert('Preset saved as ' + presetName);
+    },
+
+    listPresets: function () {
+        var presetList = JSON.parse(localStorage.getItem('presetList')) || [];
+        var presetContainer = $('#preset_list');
+        presetContainer.empty();  // Clear the list container before adding new entries
+
+        if (presetList.length === 0) {
+            presetContainer.append('<p>No presets saved yet.</p>');
+        } else {
+            presetList.forEach(function (presetName) {
+                var presetItem = $('<div>').addClass('preset-item');
+
+                // Create a button to load the preset
+                var loadButton = $('<button>')
+                    .text('Load ' + presetName)
+                    .addClass('preset_button')
+                    .click(function () {
+                        Controller.loadPresetByName(presetName);  // Load the preset when clicked
+                    });
+
+                // Create a delete button to delete the preset
+                var deleteButton = $('<button>')
+                    .text('Delete')
+                    .addClass('delete_button')
+                    .click(function () {
+                        Controller.deletePreset(presetName, presetItem);  // Delete the preset when clicked
+                        setTimeout(function () {
+                            location.reload(); // This will refresh the page after the specified delay
+                        }, 1000); // 3000 milliseconds = 3 seconds delay
+                    });
+
+                // Append both load and delete buttons to the container
+                presetItem.append(loadButton).append(deleteButton);
+                presetContainer.append(presetItem);
+            });
+        }
+    },
+
+
+    deletePreset: function (presetName, presetItem) {
+        // Confirm the deletion
+        if (!confirm('Are you sure you want to delete the preset "' + presetName + '"?')) {
+            return; // If the user cancels the deletion, stop here
+        }
+
+        // Remove the preset from localStorage
+        localStorage.removeItem(presetName);
+
+        // Update the preset list in localStorage
+        var presetList = JSON.parse(localStorage.getItem('presetList')) || [];
+        var updatedPresetList = presetList.filter(function (name) {
+            return name !== presetName; // Keep all other preset names
+        });
+
+        // Save the updated preset list back to localStorage
+        localStorage.setItem('presetList', JSON.stringify(updatedPresetList));
+
+        // Remove the preset button from the UI
+        presetItem.remove();
+
+        alert('Preset "' + presetName + '" deleted successfully.');
+    },
+
+
+    loadPresetByName: function (presetName) {
+        var self = this;
+
+        // Clear the existing grid and ensure there are no visual remains
+        if (self.grid) {
+            self.grid = null;
+            $('#draw_area').empty();
+        }
+
+        // Retrieve the preset from localStorage
+        var preset = JSON.parse(localStorage.getItem(presetName));
+
+        if (!preset) {
+            console.log('No preset found with name:', presetName);
+            return;
+        }
+
+        console.log("Loaded grid preset:", preset);
+
+        // Reinitialize the grid with loaded data
+        self.gridSize = preset.gridSize;
+        self.grid = new PF.Grid(self.gridSize[0], self.gridSize[1]);
+
+        // Reinitialize the view (grid rendering)
+        View.init({
+            numCols: self.gridSize[0],
+            numRows: self.gridSize[1]
+        });
+
+        // Regenerate the grid visually
+        View.generateGrid(function () {
+            var gridData = preset.gridData;
+
+            for (var x = 0; x < self.gridSize[0]; x++) {
+                for (var y = 0; y < self.gridSize[1]; y++) {
+                    var nodeData = gridData[x][y];
+                    var node = self.grid.getNodeAt(x, y);
+
+                    node.walkable = nodeData.walkable;
+                    node.WL = nodeData.WL;
+                    node.T = nodeData.T;
+
+                    // Update the visual representation of the node
+                    if (!node.walkable) {
+                        View.setAttributeAt(x, y, 'black', false);
+                    } else if (node.WL === 2) {
+                        View.setWaterAt(x, y, 'green');
+                    } else if (node.WL === 3) {
+                        View.setWaterAt(x, y, 'orange');
+                    } else if (node.WL === 4) {
+                        View.setWaterAt(x, y, 'red');
+                    } else {
+                        View.setAttributeAt(x, y, 'white', true);
+                    }
+                }
+            }
+
+            // Set start and end nodes with specific colors
+            View.setStart(self.startX, self.startY, 'green'); // Green for start
+            View.setEnd(self.endX, self.endY, 'red');         // Red for end
+
+            // Immediately bring the start and end nodes to the front
+            if (View.startNode) {
+                View.startNode.toFront(); // Bring start node to the front
+            }
+            if (View.endNode) {
+                View.endNode.toFront();   // Bring end node to the front
+            }
+        });
+
+    },
 
 
     clearAll: function () {
@@ -746,15 +861,15 @@ $.extend(Controller, {
 });
 
 $(document).ready(function () {
-    $(document).ready(function () {
-        $('#save_preset1').on('click', function () {
-            var presetName = prompt("Enter a name for the preset:");
-            if (presetName) {
-                Controller.savePreset(presetName);
-            }
-        });
+    $('#save_preset1').on('click', function () {
+        var presetName = prompt("Enter a name for the preset:");
+        if (presetName) {
+            Controller.savePreset(presetName);
+            setTimeout(function () {
+                location.reload(); // This will refresh the page after the specified delay
+            }, 1000); // 3000 milliseconds = 3 seconds delay
+        }
     });
-    
 
     $('#list_presets').on('click', function () {
         Controller.listPresets();
