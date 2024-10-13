@@ -74,6 +74,17 @@ button:hover {
     background: rgba(255, 255, 255, 0.9);
 }
 
+#button4 {
+    border: none;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    font-size: 90%;
+    cursor: pointer;
+    padding: 2px 8px;
+    margin: 0 2%;
+    width: 28%;
+}
+
 .finder_section {
     border: solid 1px #ddd;
     border-radius: 5px;
@@ -88,7 +99,7 @@ button:hover {
 
 #stats {
     position: fixed;
-    bottom: 350px;
+    bottom: 100px;
     right:350px;
     color: #0a0;
     font-size: 250%;
@@ -164,3 +175,21 @@ footer {
     left: 60%; 
 }
 
+/* Ensure the panel uses Flexbox to align buttons properly */
+#play_panel {
+    display: flex;               /* Use flexbox for better alignment */
+    width: 400px;
+    align-items: stretch;        /* Make buttons stretch to panel width */
+    padding: 10px;               /* Padding inside the panel */
+                    /* Spacing between buttons */
+    box-sizing: border-box;      /* Include padding in element's width/height */
+}
+
+
+
+/* Add some optional styling to differentiate buttons if needed */
+.randomize_button {
+    background-color: #f0ad4e;   /* Example background color */
+    border: none;
+    cursor: pointer;
+}

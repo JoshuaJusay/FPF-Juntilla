@@ -82,9 +82,11 @@ var Panel = {
 
 
     getFinder: function () {
-        var finder, heuristic, allowDiagonal = false, dontCrossCorners = false, weight, trackRecursion = false, timeLimit;
+        var finder, heuristic, allowDiagonal = false, dontCrossCorners = false, weight, trackRecursion, timeLimit;
 
         heuristic = $('input[name=ida_heuristics]:checked').val() || 'manhattan';
+        trackRecursion = typeof $('#ida_section ' +
+            '.track_recursion:checked').val() !== 'undefined';
 
         weight = parseInt($('#ida_section input[name=astar_weight]').val()) || 1;
         weight = weight >= 1 ? weight : 1; /* if negative or 0, use 1 */

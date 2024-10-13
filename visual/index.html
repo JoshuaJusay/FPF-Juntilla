@@ -48,6 +48,8 @@
           <label class="option_label">Manhattan</label> <br>
           <input type="radio" name="ida_heuristic" value="enhancedheuristic" id="enhanced_heuristic" />
           <label class="option_label">Weighted Manhattan and Safest-Route</label> <br> <br>
+          <input type="checkbox" class="track_recursion" />
+            <label class="option_label">Visualize recursion</label> <br>
         </div>
 
         <div id="weights_section" style="display: none;"> <!-- Initially hidden -->
@@ -94,7 +96,8 @@
     <div id="play_panel" class="panel right_panel">
       <button id="button1" class="control_button">Start Search</button>
       <button id="button2" class="control_button">Pause Search</button>
-      <button id="button3" class="control_button">Clear Walls</button>
+      <button id="button3" class="control_button">Clear Walls</button><br>
+      <button id="button4" class="randomize_button">Randomize</button>
 
     </div>
 
