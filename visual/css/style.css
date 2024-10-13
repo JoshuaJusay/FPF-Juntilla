@@ -193,3 +193,13 @@ footer {
     border: none;
     cursor: pointer;
 }
+
+.recursion_option {
+    margin-top: 10px;           /* Add some space above the checkbox section */
+    display: flex;              /* Align the checkbox and label */
+    align-items: center;
+}
+
+.track_recursion {
+    transform: scale(1.2);      /* Scale the checkbox slightly for visibility */
+}
