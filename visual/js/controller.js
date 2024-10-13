@@ -222,26 +222,29 @@ $.extend(Controller, {
         View.generateGrid(function () {
             var gridData = preset.gridData;
 
-    
             for (var x = 0; x < self.gridSize[0]; x++) {
                 for (var y = 0; y < self.gridSize[1]; y++) {
                     var nodeData = gridData[x][y];
                     var node = self.grid.getNodeAt(x, y);
 
-    
                     node.walkable = nodeData.walkable;
                     node.WL = nodeData.WL;
                     node.T = nodeData.T;
 
-                    // Update the visual representation of the node
-    
                     if (!node.walkable) {
                         View.setAttributeAt(x, y, 'black', false);
                     } else if (node.WL === 2) {
+                        View.setWaterAt(x, y, 'green');
+                    } else if (node.WL === 3) {
+                        View.setWaterAt(x, y, 'orange');
+                    } else if (node.WL === 4) {
+                        View.setWaterAt(x, y, 'red');
+                    } else {
+                        View.setAttributeAt(x, y, 'white', true);
                     }
                 }
             }
-             
+
             View.setStart(self.startX, self.startY); 
             View.setEnd(self.endX, self.endY);         
         });
