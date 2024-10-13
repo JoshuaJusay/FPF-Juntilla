@@ -697,7 +697,7 @@ $.extend(Controller, {
 
     setDefaultStartEndPos: function () {
         this.setStartPos(2, 47);
-        this.setEndPos(48, 2);
+        this.setEndPos(47, 2);
     },
 
     setStartPos: function (gridX, gridY) {

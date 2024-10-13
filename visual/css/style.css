@@ -88,7 +88,7 @@ button:hover {
 
 #stats {
     position: fixed;
-    bottom: 550px;
+    bottom: 350px;
     right:350px;
     color: #0a0;
     font-size: 250%;
@@ -141,8 +141,8 @@ footer {
     width: 250px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: fixed; /* Keep the panel fixed on the screen */
-    top: 50%; /* Adjust this as necessary to position above grid */
-    left: 60%; 
+    top: 75%; /* Adjust this as necessary to position above grid */
+    left: 80%; 
 
 }
 
@@ -160,7 +160,7 @@ footer {
     width: 240px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: fixed; /* Keep the panel fixed on the screen */
-    top: 75%; /* Adjust this as necessary to position above grid */
-    left: 80%; 
+    top: 3%; /* Adjust this as necessary to position above grid */
+    left: 60%; 
 }
 
