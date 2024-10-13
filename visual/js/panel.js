@@ -9,7 +9,6 @@ var Panel = {
     init: function () {
         var $algo = $('#algorithm_panel');
 
-        $('.panel').draggable();
         $('.accordion').accordion({
             collapsible: false,
         });
@@ -91,7 +90,6 @@ var Panel = {
         weight = weight >= 1 ? weight : 1; /* if negative or 0, use 1 */
 
         timeLimit = 10;
-
         // Any non-negative integer, indicates "forever".
         timeLimit = (timeLimit <= 0 || isNaN(timeLimit)) ? -1 : timeLimit;
 

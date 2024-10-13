@@ -165,11 +165,21 @@ var View = {
     setStart: function (gridX, gridY) {
         var nodeStyle = this.nodeStyle;
         this.colorizeNode(this.rects[gridY][gridX], nodeStyle.start.fill);
+        this.rects[gridY][gridX].attr({
+            stroke: 'black',     
+            'stroke-width': 2,
+            'stroke-opacity': 1   
+        });
     },
 
     setEnd: function (gridX, gridY) {
         var nodeStyle = this.nodeStyle;
         this.colorizeNode(this.rects[gridY][gridX], nodeStyle.end.fill);
+        this.rects[gridY][gridX].attr({
+            stroke: 'black',       // Set the border color to black
+            'stroke-width': 2, 
+            'stroke-opacity': 1 
+        });
     },
 
 
