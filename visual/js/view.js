@@ -58,7 +58,7 @@ var View = {
     },
     pathStyle: {
         stroke: 'yellow',
-        'stroke-width': 3,
+        'stroke-width': 4,
     },
     supportedOperations: ['opened', 'closed', 'tested'],
 
