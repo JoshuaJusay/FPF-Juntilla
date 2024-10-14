@@ -44,7 +44,7 @@ var View = {
             'stroke-opacity': 0.2,
         },
         tested: {
-            fill: 'none',
+            fill: '#e3e8a0',
             'stroke-opacity': 0.2,
         },
     },
@@ -166,9 +166,9 @@ var View = {
         var nodeStyle = this.nodeStyle;
         this.colorizeNode(this.rects[gridY][gridX], nodeStyle.start.fill);
         this.rects[gridY][gridX].attr({
-            stroke: 'black',     
+            stroke: 'black',
             'stroke-width': 2,
-            'stroke-opacity': 1   
+            'stroke-opacity': 1
         });
     },
 
@@ -177,8 +177,8 @@ var View = {
         this.colorizeNode(this.rects[gridY][gridX], nodeStyle.end.fill);
         this.rects[gridY][gridX].attr({
             stroke: 'black',       // Set the border color to black
-            'stroke-width': 2, 
-            'stroke-opacity': 1 
+            'stroke-width': 2,
+            'stroke-opacity': 1
         });
     },
 
