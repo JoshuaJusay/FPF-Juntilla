@@ -175,24 +175,6 @@ footer {
     left: 60%; 
 }
 
-/* Ensure the panel uses Flexbox to align buttons properly */
-#play_panel {
-    display: flex;               /* Use flexbox for better alignment */
-    width: 400px;
-    align-items: stretch;        /* Make buttons stretch to panel width */
-    padding: 10px;               /* Padding inside the panel */
-                    /* Spacing between buttons */
-    box-sizing: border-box;      /* Include padding in element's width/height */
-}
-
-
-
-/* Add some optional styling to differentiate buttons if needed */
-.randomize_button {
-    background-color: #f0ad4e;   /* Example background color */
-    border: none;
-    cursor: pointer;
-}
 
 .recursion_option {
     margin-top: 10px;           /* Add some space above the checkbox section */
